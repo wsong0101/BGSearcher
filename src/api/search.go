@@ -27,9 +27,12 @@ type SearchResult struct {
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
 	var results []SearchResult
+	results = append(results, searchGameArchive(query)...)
 	results = append(results, searchBoardpia(query)...)
 	results = append(results, searchBoardm(query)...)
 	results = append(results, searchDivedice(query)...)
+	results = append(results, searchPopcone(query)...)
+	results = append(results, searchHobbygame(query)...)
 
 	return results
 }
@@ -155,6 +158,7 @@ func searchBoardm(query string) []SearchResult {
 	return results
 }
 
+// DDResponse is a struct form DiveDice's json search response
 type DDResponse struct {
 	Total    string
 	TotPage  int
@@ -219,6 +223,158 @@ func searchDivedice(query string) []SearchResult {
 
 		results = append(results, SearchResult{
 			"다이브다이스", url, img, name1, name2, price, soldOut})
+	})
+
+	return results
+}
+
+func searchPopcone(query string) []SearchResult {
+	resp, err := http.Get("http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&sword=" + url.QueryEscape(toEUCKR(query)))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var results []SearchResult
+
+	doc.Find(".item_list_wrap").Find("td").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find(".item_thum").Find("a").Eq(1).Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://www.popcone.co.kr/shop" + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".item_thum").Find("a").Eq(1).Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		if !strings.Contains(img, "http") {
+			img = "http://www.popcone.co.kr/shop" + strings.Split(img, "..")[1]
+		}
+
+		name1 := ""
+
+		name2 := toUTF8(s.Find(".i_name").Text())
+
+		price := s.Find(".price").Text() + "원"
+
+		var soldOut = false
+		var states = ""
+		s.Find(".i_state").Find("img").Each(func(i int, ss *goquery.Selection) {
+			src, exists := ss.Attr("src")
+			if exists {
+				states += src
+			}
+		})
+		if strings.Contains(states, "soldout") {
+			soldOut = true
+		}
+
+		results = append(results, SearchResult{
+			"팝콘에듀", url, img, name1, name2, price, soldOut})
+	})
+
+	return results
+}
+
+func searchHobbygame(query string) []SearchResult {
+	resp, err := http.Get("http://www.hobbygamemall.com/shop/goods/goods_search.php?searched=Y&skey=all&sword=&sword=" + url.QueryEscape(toEUCKR(query)))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var results []SearchResult
+
+	doc.Find(".indiv").Find("table").Find("table").Find("td").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find("div").Eq(0).Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://www.hobbygamemall.com/shop" + strings.Split(url, "..")[1]
+
+		img, exists := s.Find("div").Eq(0).Find("a").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = "http://www.hobbygamemall.com/shop" + strings.Split(img, "..")[1]
+
+		var soldOut = false
+		var nameIndex = 1
+
+		_, exists = s.Find("div").Eq(1).Find("img").Attr("src")
+		if exists {
+			soldOut = true
+			nameIndex = 2
+		}
+
+		name1 := ""
+
+		name2 := toUTF8(s.Find("div").Eq(nameIndex).Find("a").Text())
+
+		price := toUTF8(s.Find("b").Text())
+
+		results = append(results, SearchResult{
+			"하비게임몰", url, img, name1, name2, price, soldOut})
+	})
+
+	return results
+}
+
+func searchGameArchive(query string) []SearchResult {
+	resp, err := http.Get("http://gamearc.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var results []SearchResult
+
+	doc.Find(".list").Find("li").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find(".thumbnail").Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://www.gamearc.co.kr" + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".thumbnail").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = "https://www.gamearc.co.kr" + img
+
+		var soldOut = false
+		_, exists = s.Find(".txt").Find("img").Attr("src")
+		if exists {
+			soldOut = true
+		}
+
+		name1 := s.Find(".txt").Find("em").Text()
+
+		name2 := s.Find(".txt").Find("strong").Text()
+
+		price := s.Find(".cost").Find("strong").Text() + "원"
+
+		results = append(results, SearchResult{
+			"게임아카이브", url, img, name1, name2, price, soldOut})
 	})
 
 	return results
