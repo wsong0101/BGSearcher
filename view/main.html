@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- 도움되는 콘솔 경고를 포함한 개발 버전 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <title>BGSearcher!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>BGSearcher!</h1>
+
+        <div id="app">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" v-model="query" v-on:keyup.enter="Search" placeholder="입력" aria-label="입력" aria-describedby="button-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2" v-on:click="Search">검색</button>
+                </div>
+            </div>
+            <div>
+                <ul class="row" style="list-style-type:none;">
+                    <li v-for="result in results" class="col-sm-4" style="padding: 15px 15px">
+                        <div>
+                            <a :href="result.Link" target="blank">
+                                <img :src="result.Img" class="img-thumbnail" />
+                            </a>
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-info">${result.Company}</li>
+                                <li class="list-group-item">${result.Name}</li>
+                                <li class="list-group-item">${result.Name2}</li>
+                                <li class="list-group-item">${result.Price}</li>
+                                <li class="list-group-item list-group-item-danger" v-if="result.SoldOut">품절</li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            delimiters: ['${', '}'],
+            el: '#app',
+            data: {
+                query: "",
+                results: []
+            },
+            methods: {
+                Search: function (event) {
+                    var self = this
+                    axios.post("/search", null, {
+                        params: {
+                            "query": this.query
+                        }
+                    })
+                    .then(function (response) {
+                        console.log(response)
+                        self.results = response.data
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    });
+                }
+            }
+        })
+    </script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
