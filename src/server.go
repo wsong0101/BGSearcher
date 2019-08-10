@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"runtime"
 
 	"github.com/labstack/echo"
 
@@ -25,6 +26,8 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	runtime.GOMAXPROCS(2)
+
 	e := echo.New()
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("../view/*.html")),

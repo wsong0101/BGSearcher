@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/text/encoding/korean"
@@ -26,15 +27,29 @@ type SearchResult struct {
 
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
-	var results []SearchResult
-	results = append(results, searchGameArchive(query)...)
-	results = append(results, searchBoardpia(query)...)
-	results = append(results, searchBoardm(query)...)
-	results = append(results, searchDivedice(query)...)
-	results = append(results, searchPopcone(query)...)
-	results = append(results, searchHobbygame(query)...)
+	wg := sync.WaitGroup{}
+	wg.Add(7)
+	ch := make(chan []SearchResult, 7)
 
-	return results
+	go searchCardcastle(ch, &wg, query)
+	go searchGameArchive(ch, &wg, query)
+	go searchBoardpia(ch, &wg, query)
+	go searchBoardm(ch, &wg, query)
+	go searchDivedice(ch, &wg, query)
+	go searchPopcone(ch, &wg, query)
+	go searchHobbygame(ch, &wg, query)
+
+	wg.Wait()
+	close(ch)
+
+	var results []SearchResult
+	for {
+		if result, success := <-ch; success {
+			results = append(results, result...)
+		} else {
+			return results
+		}
+	}
 }
 
 func toUTF8(s string) string {
@@ -55,7 +70,8 @@ func toEUCKR(s string) string {
 	return bufs.String()
 }
 
-func searchBoardpia(query string) []SearchResult {
+func searchBoardpia(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.Get("http://boardpia.co.kr/mall/product_list.html?search=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
 		panic(err)
@@ -101,10 +117,11 @@ func searchBoardpia(query string) []SearchResult {
 			"보드피아", url, img, toUTF8(name1), toUTF8(name2), toUTF8(price), soldOut})
 	})
 
-	return results
+	ch <- results
 }
 
-func searchBoardm(query string) []SearchResult {
+func searchBoardm(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.Get("http://www.boardm.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
 	if err != nil {
 		panic(err)
@@ -155,7 +172,7 @@ func searchBoardm(query string) []SearchResult {
 			"보드엠", url, img, name1, name2, price, soldOut})
 	})
 
-	return results
+	ch <- results
 }
 
 // DDResponse is a struct form DiveDice's json search response
@@ -169,7 +186,8 @@ type DDResponse struct {
 	HTML     string
 }
 
-func searchDivedice(query string) []SearchResult {
+func searchDivedice(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.PostForm("https://www.divedice.com/_proc/prd/prd_list.php", url.Values{
 		"top_name": {query},
 	})
@@ -225,10 +243,11 @@ func searchDivedice(query string) []SearchResult {
 			"다이브다이스", url, img, name1, name2, price, soldOut})
 	})
 
-	return results
+	ch <- results
 }
 
-func searchPopcone(query string) []SearchResult {
+func searchPopcone(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.Get("http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&sword=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
 		panic(err)
@@ -280,10 +299,11 @@ func searchPopcone(query string) []SearchResult {
 			"팝콘에듀", url, img, name1, name2, price, soldOut})
 	})
 
-	return results
+	ch <- results
 }
 
-func searchHobbygame(query string) []SearchResult {
+func searchHobbygame(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.Get("http://www.hobbygamemall.com/shop/goods/goods_search.php?searched=Y&skey=all&sword=&sword=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
 		panic(err)
@@ -330,10 +350,11 @@ func searchHobbygame(query string) []SearchResult {
 			"하비게임몰", url, img, name1, name2, price, soldOut})
 	})
 
-	return results
+	ch <- results
 }
 
-func searchGameArchive(query string) []SearchResult {
+func searchGameArchive(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
 	resp, err := http.Get("http://gamearc.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
 	if err != nil {
 		panic(err)
@@ -359,7 +380,7 @@ func searchGameArchive(query string) []SearchResult {
 		if !exists {
 			return
 		}
-		img = "https://www.gamearc.co.kr" + img
+		img = "http://www.gamearc.co.kr" + img
 
 		var soldOut = false
 		_, exists = s.Find(".txt").Find("img").Attr("src")
@@ -377,5 +398,53 @@ func searchGameArchive(query string) []SearchResult {
 			"게임아카이브", url, img, name1, name2, price, soldOut})
 	})
 
-	return results
+	ch <- results
+}
+
+func searchCardcastle(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
+	resp, err := http.Get("http://cardcastle.co.kr/product/search.html?&keyword=" + url.QueryEscape(query))
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var results []SearchResult
+
+	doc.Find(".prdList").Find(".box").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find("a").Eq(0).Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://www.cardcastle.co.kr" + url
+
+		img, exists := s.Find("a").Eq(0).Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = "http:" + img
+
+		var soldOut = false
+		_, exists = s.Find(".status").Find(".icon").Find("img").Attr("src")
+		if exists {
+			soldOut = true
+		}
+
+		name1 := ""
+
+		name2 := s.Find(".name").Find("span").Text()
+
+		price := s.Find("strong").Text()
+
+		results = append(results, SearchResult{
+			"카드캐슬", url, img, name1, name2, price, soldOut})
+	})
+
+	ch <- results
 }
