@@ -41,6 +41,12 @@
 
         <div id="app">
             <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                    <div class="dropdown-menu">
+                        <a v-for="hit in hits" class="dropdown-item" v-on:click="SearchHits(hit.Query)">${hit.Query}</a>
+                    </div>
+                </div>
                 <input type="text" class="form-control" v-model="query" v-on:keyup.enter="Search" placeholder="입력" aria-label="입력" aria-describedby="button-addon2">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary" type="button" id="button-addon2" v-on:click="Search">검색</button>
@@ -73,7 +79,11 @@
             el: '#app',
             data: {
                 query: "",
-                results: []
+                results: [],
+                hits: [],
+            },
+            mounted: function() {
+                this.GetHits()
             },
             methods: {
                 ExtractNumber: function(str) {
@@ -92,8 +102,8 @@
                             "query": this.query
                         }
                     })
-                    .then(function (response) {
-                        self.results = response.data
+                    .then(function (resp) {
+                        self.results = resp.data
                         self.results.sort((l, r) => {
                             if (l.SoldOut && !r.SoldOut) {
                                 return 1
@@ -112,7 +122,22 @@
                     })
                     .catch(function (error) {
                         console.log(error)
-                    });
+                    })
+                },
+                SearchHits: function(query) {
+                    this.query = query
+                    this.Search()
+                },
+                GetHits: function (event) {
+                    var self = this
+                    axios.post("/hits", null, {})
+                    .then(function (resp) {
+                        self.hits = resp.data
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    })
+                    
                 }
             }
         })

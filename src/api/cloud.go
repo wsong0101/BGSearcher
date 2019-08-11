@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/storage"
@@ -15,8 +16,16 @@ const bucketName = "bgsearcher"
 const projectID = "sublime-etching-249504"
 const prefix = "https://storage.cloud.google.com/" + bucketName + "/"
 
+// HitsResult represents each result of GetHits
+type HitsResult struct {
+	Query string
+	Hits  int64
+}
+
 var fileMap map[string]bool
 var hitsMap map[string]int64
+var hitsResult []HitsResult
+
 var bucket *storage.BucketHandle
 var collection *firestore.CollectionRef
 
@@ -67,6 +76,7 @@ func InitializeCloud() {
 		var query = doc.Data()["query"].(string)
 		var hits = doc.Data()["hits"].(int64)
 		hitsMap[query] = hits
+		updateHitsResult(query)
 	}
 }
 
@@ -102,6 +112,7 @@ func GetURLFromCloud(path string, origin string) string {
 func IncreaseHitsCount(query string) {
 	if val, exists := hitsMap[query]; exists {
 		hitsMap[query] = val + 1
+		updateHitsResult(query)
 
 		go func(query string, hits int64) {
 			ctx := context.Background()
@@ -119,6 +130,8 @@ func IncreaseHitsCount(query string) {
 	// new query!
 	go func(query string) {
 		hitsMap[query] = 1
+		updateHitsResult(query)
+
 		ctx := context.Background()
 		_, err := collection.Doc(query).Set(ctx, map[string]interface{}{
 			"query": query,
@@ -129,4 +142,37 @@ func IncreaseHitsCount(query string) {
 			log.Printf("Failed to add on document: %s", query)
 		}
 	}(query)
+}
+
+// GetHits returns JSON hits map
+func GetHits() []HitsResult {
+	return hitsResult
+}
+
+func updateHitsResult(query string) {
+	hits, exists := hitsMap[query]
+	if !exists {
+		return
+	}
+
+	found := false
+	for i := range hitsResult {
+		if hitsResult[i].Query == query {
+			hitsResult[i].Hits = hits
+			found = true
+		}
+	}
+	if !found {
+		hitsResult = append(hitsResult, HitsResult{
+			Query: query,
+			Hits:  hits,
+		})
+	}
+
+	sort.Slice(hitsResult, func(i, j int) bool {
+		return hitsResult[i].Hits > hitsResult[j].Hits
+	})
+	if len(hitsResult) > 10 {
+		hitsResult = hitsResult[:10]
+	}
 }

@@ -48,6 +48,11 @@ func main() {
 		return c.JSON(http.StatusOK, result)
 	})
 
+	e.POST("/hits", func(c echo.Context) error {
+		result := api.GetHits()
+		return c.JSON(http.StatusOK, result)
+	})
+
 	e.File("/favicon.ico", "favicon.ico")
 
 	e.Logger.Fatal(e.Start(":8080"))
