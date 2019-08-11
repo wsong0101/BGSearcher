@@ -28,6 +28,8 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func main() {
 	runtime.GOMAXPROCS(2)
 
+	api.InitializeCloud()
+
 	e := echo.New()
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("../view/*.html")),

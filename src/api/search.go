@@ -176,7 +176,7 @@ func searchBoardm(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 }
 
 // DDResponse is a struct form DiveDice's json search response
-type DDResponse struct {
+type ddResponse struct {
 	Total    string
 	TotPage  int
 	PageList string
@@ -201,7 +201,7 @@ func searchDivedice(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 		panic(err)
 	}
 
-	var ddResp DDResponse
+	var ddResp ddResponse
 	err = json.Unmarshal([]byte(respBody), &ddResp)
 	if err != nil {
 		panic(err)
@@ -329,7 +329,9 @@ func searchHobbygame(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 		if !exists {
 			return
 		}
-		img = "http://www.hobbygamemall.com/shop" + strings.Split(img, "..")[1]
+		img = strings.Split(img, "..")[1]
+
+		img = GetURLFromCloud("hobbygame"+img, "http://www.hobbygamemall.com/shop"+img)
 
 		var soldOut = false
 		var nameIndex = 1
@@ -380,7 +382,7 @@ func searchGameArchive(ch chan []SearchResult, wg *sync.WaitGroup, query string)
 		if !exists {
 			return
 		}
-		img = "http://www.gamearc.co.kr" + img
+		img = GetURLFromCloud("gamearc"+img, "http://www.gamearc.co.kr"+img)
 
 		var soldOut = false
 		_, exists = s.Find(".txt").Find("img").Attr("src")

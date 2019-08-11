@@ -12,6 +12,18 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <title>BGSearcher!</title>
+
+    <style>
+        .col-sm-4 {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        .row {
+            margin: 0px;
+            padding-inline-start: 0px;
+            list-style-type:none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -25,8 +37,8 @@
                 </div>
             </div>
             <div>
-                <ul class="row" style="list-style-type:none;">
-                    <li v-for="result in results" class="col-sm-4" style="padding: 15px 15px">
+                <ul class="row">
+                    <li v-for="result in results" class="col-sm-4">
                         <div>
                             <a :href="result.Link" target="blank">
                                 <img :src="result.Img" class="img-thumbnail" />
