@@ -32,7 +32,7 @@ func main() {
 
 	e := echo.New()
 	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("../view/*.html")),
+		templates: template.Must(template.ParseGlob("view/*.html")),
 	}
 	e.Renderer = renderer
 
@@ -48,5 +48,5 @@ func main() {
 		return c.JSON(http.StatusOK, result)
 	})
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":8080"))
 }
