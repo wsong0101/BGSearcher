@@ -48,6 +48,7 @@ func Search(query string) []SearchResult {
 		if result, success := <-ch; success {
 			results = append(results, result...)
 		} else {
+			IncreaseHitsCount(query)
 			return results
 		}
 	}
