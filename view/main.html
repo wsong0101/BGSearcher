@@ -37,9 +37,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>BGSearcher!</h1>
-
         <div id="app">
+            <h1 v-on:click="Refresh">BGSearcher!</h1>
+
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
@@ -128,7 +128,7 @@
                     this.query = query
                     this.Search()
                 },
-                GetHits: function (event) {
+                GetHits: function(event) {
                     var self = this
                     axios.post("/hits", null, {})
                     .then(function (resp) {
@@ -138,6 +138,9 @@
                         console.log(error)
                     })
                     
+                },
+                Refresh: function(event) {
+                    this.results = []
                 }
             }
         })
