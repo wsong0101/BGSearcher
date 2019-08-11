@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -74,13 +75,15 @@ func searchBoardpia(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 	defer wg.Done()
 	resp, err := http.Get("http://boardpia.co.kr/mall/product_list.html?search=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
-		panic(err)
+		log.Printf("searchBoardpia: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchBoardpia: Failed to read response")
+		return
 	}
 
 	var results []SearchResult
@@ -124,13 +127,15 @@ func searchBoardm(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 	defer wg.Done()
 	resp, err := http.Get("http://www.boardm.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
 	if err != nil {
-		panic(err)
+		log.Printf("searchBoardm: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchBoardm: Failed to read response")
+		return
 	}
 
 	var results []SearchResult
@@ -192,24 +197,28 @@ func searchDivedice(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 		"top_name": {query},
 	})
 	if err != nil {
-		panic(err)
+		log.Printf("searchDivedice: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchDivedice: Failed to read response")
+		return
 	}
 
 	var ddResp ddResponse
 	err = json.Unmarshal([]byte(respBody), &ddResp)
 	if err != nil {
-		panic(err)
+		log.Printf("searchDivedice: Failed to unmarshal response")
+		return
 	}
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(ddResp.HTML))
 	if err != nil {
-		panic(err)
+		log.Printf("searchDivedice: Failed to read from response")
+		return
 	}
 
 	var results []SearchResult
@@ -250,13 +259,15 @@ func searchPopcone(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 	defer wg.Done()
 	resp, err := http.Get("http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&sword=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
-		panic(err)
+		log.Printf("searchPopcone: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchPopcone: Failed to read response")
+		return
 	}
 
 	var results []SearchResult
@@ -306,13 +317,15 @@ func searchHobbygame(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 	defer wg.Done()
 	resp, err := http.Get("http://www.hobbygamemall.com/shop/goods/goods_search.php?searched=Y&skey=all&sword=&sword=" + url.QueryEscape(toEUCKR(query)))
 	if err != nil {
-		panic(err)
+		log.Printf("searchHobbygame: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchHobbygame: Failed to read response")
+		return
 	}
 
 	var results []SearchResult
@@ -359,13 +372,15 @@ func searchGameArchive(ch chan []SearchResult, wg *sync.WaitGroup, query string)
 	defer wg.Done()
 	resp, err := http.Get("http://gamearc.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
 	if err != nil {
-		panic(err)
+		log.Printf("searchHobbygame: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchHobbygame: Failed to read response")
+		return
 	}
 
 	var results []SearchResult
@@ -407,13 +422,15 @@ func searchCardcastle(ch chan []SearchResult, wg *sync.WaitGroup, query string) 
 	defer wg.Done()
 	resp, err := http.Get("http://cardcastle.co.kr/product/search.html?&keyword=" + url.QueryEscape(query))
 	if err != nil {
-		panic(err)
+		log.Printf("searchCardcastle: Failed to get page")
+		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("searchCardcastle: Failed to read response")
+		return
 	}
 
 	var results []SearchResult

@@ -60,7 +60,6 @@ func GetURLFromCloud(path string, origin string) string {
 				log.Printf("Failed to close bucket writer: %v, %s", err, path)
 			}
 		}
-		log.Printf("File upload completed: " + path)
 	}(path, origin)
 
 	fileMap[path] = true
