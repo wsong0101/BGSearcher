@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -29,8 +30,8 @@ type SearchResult struct {
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
 	wg := sync.WaitGroup{}
-	wg.Add(8)
-	ch := make(chan []SearchResult, 8)
+	wg.Add(9)
+	ch := make(chan []SearchResult, 9)
 
 	go searchCardcastle(ch, &wg, query)
 	go searchGameArchive(ch, &wg, query)
@@ -40,6 +41,7 @@ func Search(query string) []SearchResult {
 	go searchPopcone(ch, &wg, query)
 	go searchHobbygame(ch, &wg, query)
 	go searchWeefun(ch, &wg, query)
+	go searchBmarket(ch, &wg, query)
 
 	wg.Wait()
 	close(ch)
@@ -514,6 +516,72 @@ func searchWeefun(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 
 		results = append(results, SearchResult{
 			"위펀", url, img, name1, name2, price, soldOut})
+	})
+
+	ch <- results
+}
+
+func searchBmarket(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
+	resp, err := http.Get("http://shopping.boardlife.co.kr/list.php?&action=search&search01=" + url.QueryEscape(query))
+	if err != nil {
+		log.Printf("searchBmarket: Failed to get page")
+		return
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("searchBmarket: Failed to read response")
+		return
+	}
+
+	var results []SearchResult
+	doc.Find("#stabTLayer1").Find("table").Eq(0).Find("div").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find("a").Eq(0).Attr("href")
+		if !exists || !strings.Contains(url, "view.php") {
+			return
+		}
+		url = "http://shopping.boardlife.co.kr/" + strings.Split(url, "./")[1]
+
+		img, exists := s.Find("img").Eq(0).Attr("src")
+		if !exists || !strings.Contains(img, "thumb") {
+			img, exists = s.Find("img").Eq(1).Attr("src")
+			if !exists || !strings.Contains(img, "thumb") {
+				return
+			}
+		}
+		img = strings.Split(img, "./")[1]
+		img = "http://shopping.boardlife.co.kr/" + img
+
+		var soldOut = false
+
+		var target = s.Children().Eq(0).Children().Eq(0).ChildrenFiltered("tr").Eq(1)
+		name1 := toUTF8(target.Find("span").Eq(0).Text())
+
+		name2 := toUTF8(target.Find("font").Eq(0).Text())
+
+		var price = ""
+
+		priceURL, exists := target.Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		priceURL = toUTF8(priceURL)
+		if strings.Contains(priceURL, "품절") {
+			soldOut = true
+			price = ""
+		} else {
+			if match, _ := regexp.MatchString("=([0-9]*,*[0-9]* 원)", priceURL); !match {
+				return
+			}
+			r, _ := regexp.Compile("=([0-9]*,*[0-9]* 원)")
+			price = r.FindStringSubmatch(priceURL)[1]
+		}
+
+		results = append(results, SearchResult{
+			"비마켓", url, img, name1, name2, price, soldOut})
 	})
 
 	ch <- results
