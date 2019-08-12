@@ -29,8 +29,8 @@ type SearchResult struct {
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
 	wg := sync.WaitGroup{}
-	wg.Add(7)
-	ch := make(chan []SearchResult, 7)
+	wg.Add(8)
+	ch := make(chan []SearchResult, 8)
 
 	go searchCardcastle(ch, &wg, query)
 	go searchGameArchive(ch, &wg, query)
@@ -39,6 +39,7 @@ func Search(query string) []SearchResult {
 	go searchDivedice(ch, &wg, query)
 	go searchPopcone(ch, &wg, query)
 	go searchHobbygame(ch, &wg, query)
+	go searchWeefun(ch, &wg, query)
 
 	wg.Wait()
 	close(ch)
@@ -464,6 +465,55 @@ func searchCardcastle(ch chan []SearchResult, wg *sync.WaitGroup, query string) 
 
 		results = append(results, SearchResult{
 			"카드캐슬", url, img, name1, name2, price, soldOut})
+	})
+
+	ch <- results
+}
+
+func searchWeefun(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
+	resp, err := http.Get("http://weefun.co.kr/shop/shopbrand.html?search&page=1&sort=brandname&prize1=" + url.QueryEscape(toEUCKR(query)))
+	if err != nil {
+		log.Printf("searchWeefun: Failed to get page")
+		return
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("searchWeefun: Failed to read response")
+		return
+	}
+
+	var results []SearchResult
+
+	doc.Find(".prd-list").Find(".tb-center").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find(".thumb").Find("a").Eq(0).Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://www.weefun.co.kr" + url
+
+		img, exists := s.Find(".thumb").Find("a").Eq(0).Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = "http://www.weefun.co.kr" + img
+
+		var soldOut = false
+		if s.Find(".soldout").Text() != "" {
+			soldOut = true
+		}
+
+		name1 := toUTF8(s.Find(".subname").Text())
+
+		name2 := toUTF8(s.Find(".dsc").Text())
+
+		price := toUTF8(s.Find(".price").Text())
+
+		results = append(results, SearchResult{
+			"위펀", url, img, name1, name2, price, soldOut})
 	})
 
 	ch <- results
