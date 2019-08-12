@@ -78,7 +78,7 @@
                                 <li class="list-group-item list-group-item-info">${result.Company}</li>
                                 <li class="list-group-item" v-if="result.Name!=''">${result.Name}</li>
                                 <li class="list-group-item">${result.Name2}</li>
-                                <li class="list-group-item">${result.Price}</li>
+                                <li class="list-group-item" v-if="result.Price!=''">${result.Price}</li>
                                 <li class="list-group-item list-group-item-danger" v-if="result.SoldOut">품절</li>
                             </ul>
                         </div>
