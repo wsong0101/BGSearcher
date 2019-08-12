@@ -73,8 +73,14 @@ func InitializeCloud() {
 			log.Fatalf("Failed to get document from collection: %v", err)
 			return
 		}
-		var query = doc.Data()["query"].(string)
-		var hits = doc.Data()["hits"].(int64)
+		var query = ""
+		var hits int64
+		if doc.Data()["query"] != nil {
+			query = doc.Data()["query"].(string)
+		}
+		if doc.Data()["hits"] != nil {
+			hits = doc.Data()["hits"].(int64)
+		}
 		hitsMap[query] = hits
 		updateHitsResult(query)
 	}
