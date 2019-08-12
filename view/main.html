@@ -54,6 +54,7 @@
             </div>
             <div>
                 <ul class="row">
+                    <li v-if="emptyResult" class="col-sm-4">검색 결과가 없습니다.</li>
                     <li v-for="result in results" class="col-sm-4">
                         <div>
                             <a :href="result.Link" target="blank">
@@ -81,6 +82,7 @@
                 query: "",
                 results: [],
                 hits: [],
+                emptyResult: false
             },
             mounted: function() {
                 this.GetHits()
@@ -104,6 +106,14 @@
                     })
                     .then(function (resp) {
                         self.results = resp.data
+
+                        if (self.results == null) {
+                            self.emptyResult = true
+                            return
+                        }
+                        
+                        self.emptyResult = false
+
                         self.results.sort((l, r) => {
                             if (l.SoldOut && !r.SoldOut) {
                                 return 1
@@ -141,6 +151,8 @@
                 },
                 Refresh: function(event) {
                     this.results = []
+                    this.emptyResult = false
+                    this.query = ""
                 }
             }
         })
