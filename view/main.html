@@ -54,7 +54,20 @@
             </div>
             <div>
                 <ul class="row">
-                    <li v-if="emptyResult" class="col-sm-4">검색 결과가 없습니다.</li>
+                    <li v-if="emptyResult" class="col-sm-12">검색 결과가 없습니다.</li>
+                    <li v-if="!emptyResult && results.length == 0" class="col-sm-12">
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
+                            <li class="list-group-item list-group-item-action"><a href="http://gamearc.co.kr" target="blank">게임아카이브</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="https://www.divedice.com" target="blank">다이브다이스</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://boardpia.co.kr" target="blank">보드피아</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://www.boardm.co.kr" target="blank">보드엠</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://www.weefun.co.kr" target="blank">위펀</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://cardcastle.co.kr" target="blank">카드캐슬</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://www.popcone.co.kr" target="blank">팝콘에듀</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="http://hobbygamemall.com" target="blank">하비게임몰</a></li>
+                        </ul>
+                    </li>
                     <li v-for="result in results" class="col-sm-4">
                         <div>
                             <a :href="result.Link" target="blank">
