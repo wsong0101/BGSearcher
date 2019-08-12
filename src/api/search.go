@@ -30,8 +30,8 @@ type SearchResult struct {
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
 	wg := sync.WaitGroup{}
-	wg.Add(9)
-	ch := make(chan []SearchResult, 9)
+	wg.Add(10)
+	ch := make(chan []SearchResult, 10)
 
 	go searchCardcastle(ch, &wg, query)
 	go searchGameArchive(ch, &wg, query)
@@ -42,6 +42,7 @@ func Search(query string) []SearchResult {
 	go searchHobbygame(ch, &wg, query)
 	go searchWeefun(ch, &wg, query)
 	go searchBmarket(ch, &wg, query)
+	go searchBoardgamemall(ch, &wg, query)
 
 	wg.Wait()
 	close(ch)
@@ -582,6 +583,52 @@ func searchBmarket(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
 
 		results = append(results, SearchResult{
 			"비마켓", url, img, name1, name2, price, soldOut})
+	})
+
+	ch <- results
+}
+
+func searchBoardgamemall(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
+	resp, err := http.Get("http://www.boardgamemall.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
+	if err != nil {
+		log.Printf("searchBoardgamemall: Failed to get page")
+		return
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("searchBoardgamemall: Failed to read response")
+		return
+	}
+
+	var results []SearchResult
+
+	doc.Find(".goods_list_cont").Find(".item_cont").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find(".item_photo_box").Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://boardgamemall.co.kr" + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".item_photo_box").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = GetURLFromCloud("bgmall"+img, "http://www.boardgamemall.co.kr"+img)
+
+		var soldOut = false
+
+		name1 := s.Find(".item_info_cont").Find(".item_name").Text()
+
+		name2 := ""
+
+		price := s.Find(".item_money_box").Find(".item_price").Text()
+
+		results = append(results, SearchResult{
+			"보드게임몰", url, img, name1, name2, price, soldOut})
 	})
 
 	ch <- results
