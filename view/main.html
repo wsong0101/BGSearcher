@@ -68,6 +68,8 @@
                             <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
                             <li class="list-group-item list-group-item-action"><a href="http://gamearc.co.kr" target="blank">게임아카이브</a></li>
                             <li class="list-group-item list-group-item-action"><a href="https://www.divedice.com" target="blank">다이브다이스</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="https://devildice.co.kr" target="blank">데블다이스</a></li>
+                            <li class="list-group-item list-group-item-action"><a href="https://boardgamemall.co.kr" target="blank">보드게임몰</a></li>
                             <li class="list-group-item list-group-item-action"><a href="http://www.boardm.co.kr" target="blank">보드엠</a></li>
                             <li class="list-group-item list-group-item-action"><a href="http://boardpia.co.kr" target="blank">보드피아</a></li>
                             <li class="list-group-item list-group-item-action"><a href="http://shopping.boardlife.co.kr" target="blank">비마켓</a></li>
@@ -85,7 +87,7 @@
                             <ul class="list-group">
                                 <li class="list-group-item list-group-item-info">${result.Company}</li>
                                 <li class="list-group-item" v-if="result.Name!=''">${result.Name}</li>
-                                <li class="list-group-item">${result.Name2}</li>
+                                <li class="list-group-item" v-if="result.Name2!=''">${result.Name2}</li>
                                 <li class="list-group-item" v-if="result.Price!=''">${result.Price}</li>
                                 <li class="list-group-item list-group-item-danger" v-if="result.SoldOut">품절</li>
                             </ul>

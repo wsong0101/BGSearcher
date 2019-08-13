@@ -30,8 +30,8 @@ type SearchResult struct {
 // Search returns a slice of SearchResult
 func Search(query string) []SearchResult {
 	wg := sync.WaitGroup{}
-	wg.Add(10)
-	ch := make(chan []SearchResult, 10)
+	wg.Add(11)
+	ch := make(chan []SearchResult, 11)
 
 	go searchCardcastle(ch, &wg, query)
 	go searchGameArchive(ch, &wg, query)
@@ -43,6 +43,7 @@ func Search(query string) []SearchResult {
 	go searchWeefun(ch, &wg, query)
 	go searchBmarket(ch, &wg, query)
 	go searchBoardgamemall(ch, &wg, query)
+	go searchDevildice(ch, &wg, query)
 
 	wg.Wait()
 	close(ch)
@@ -629,6 +630,57 @@ func searchBoardgamemall(ch chan []SearchResult, wg *sync.WaitGroup, query strin
 
 		results = append(results, SearchResult{
 			"보드게임몰", url, img, name1, name2, price, soldOut})
+	})
+
+	ch <- results
+}
+
+func searchDevildice(ch chan []SearchResult, wg *sync.WaitGroup, query string) {
+	defer wg.Done()
+	resp, err := http.Get("http://devildice.co.kr/goods/goods_search.php?keyword=" + url.QueryEscape(query))
+	if err != nil {
+		log.Printf("searchDevildice: Failed to get page")
+		return
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("searchDevildice: Failed to read response")
+		return
+	}
+
+	var results []SearchResult
+
+	doc.Find(".goods-list").Find(".space").Each(func(i int, s *goquery.Selection) {
+		// each item
+		url, exists := s.Find(".thumbnail").Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = "http://devildice.co.kr" + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".thumbnail").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = GetURLFromCloud("devildice"+img, "http://devildice.co.kr"+img)
+
+		var soldOut = false
+
+		name1 := s.Find(".txt").Find("strong").Eq(0).Text()
+
+		name2 := ""
+
+		price := s.Find(".price").Find(".cost").Text()
+
+		if price == "품절" {
+			price = ""
+			soldOut = true
+		}
+
+		results = append(results, SearchResult{
+			"데블다이스", url, img, name1, name2, price, soldOut})
 	})
 
 	ch <- results
