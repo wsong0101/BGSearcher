@@ -122,6 +122,10 @@
                     return parseInt(sum)
                 },
                 Search: function (event) {
+                    if (this.query == "") {
+                        return
+                    }
+
                     var self = this
                     axios.post("/search", null, {
                         params: {
