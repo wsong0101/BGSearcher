@@ -182,3 +182,27 @@ func updateHitsResult(query string) {
 		hitsResult = hitsResult[:10]
 	}
 }
+
+// RemoveHistory removes the word from cache and firestore
+func RemoveHistory(word string, passwd string) string {
+	if passwd != "vudghk" && passwd != "평화" {
+		return "wrong password"
+	}
+	if _, exists := hitsMap[word]; !exists {
+		return "word not exists"
+	}
+
+	for i := range hitsResult {
+		if hitsResult[i].Query == word {
+			hitsResult = append(hitsResult[:i], hitsResult[i+1:]...)
+		}
+	}
+	delete(hitsMap, word)
+
+	ctx := context.Background()
+	if _, err := collection.Doc(word).Delete(ctx); err != nil {
+		return "firestore error"
+	}
+
+	return "success"
+}

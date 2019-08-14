@@ -55,5 +55,19 @@ func main() {
 
 	e.File("/favicon.ico", "favicon.ico")
 
+	// admin
+	e.GET("/admin", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "admin.html", map[string]interface{}{
+			"name": "Dolly!",
+		})
+	}).Name = "foobar"
+
+	e.POST("/remove", func(c echo.Context) error {
+		passwd := c.QueryParam("passwd")
+		word := c.QueryParam("word")
+		result := api.RemoveHistory(word, passwd)
+		return c.JSON(http.StatusOK, result)
+	})
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
