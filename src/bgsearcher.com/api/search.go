@@ -46,7 +46,7 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.CardCastle{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://cardcastle.co.kr/product/search.html?&keyword=",
+			QueryURL:     "http://cardcastle.co.kr/product/search.html?category_no=1091&keyword=",
 			Name:         "카드캐슬",
 			URL:          "http://www.cardcastle.co.kr",
 			LinkPrefix:   "http://www.cardcastle.co.kr",
@@ -91,7 +91,7 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.PopconeEdu{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&sword=",
+			QueryURL:     "http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&cate[0]=002&sword=",
 			Name:         "팝콘에듀",
 			URL:          "http://www.popcone.co.kr",
 			LinkPrefix:   "http://www.popcone.co.kr/shop",
