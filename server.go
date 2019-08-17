@@ -8,7 +8,8 @@ import (
 
 	"github.com/labstack/echo"
 
-	"api"
+	"bgsearcher.com/api"
+	"bgsearcher.com/cloud"
 )
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
@@ -26,9 +27,9 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(1)
 
-	api.InitializeCloud()
+	cloud.InitializeCloud()
 
 	e := echo.New()
 	renderer := &TemplateRenderer{
@@ -49,7 +50,7 @@ func main() {
 	})
 
 	e.POST("/hits", func(c echo.Context) error {
-		result := api.GetHits()
+		result := cloud.GetHits()
 		return c.JSON(http.StatusOK, result)
 	})
 
@@ -65,7 +66,7 @@ func main() {
 	e.POST("/remove", func(c echo.Context) error {
 		passwd := c.QueryParam("passwd")
 		word := c.QueryParam("word")
-		result := api.RemoveHistory(word, passwd)
+		result := cloud.RemoveHistory(word, passwd)
 		return c.JSON(http.StatusOK, result)
 	})
 
