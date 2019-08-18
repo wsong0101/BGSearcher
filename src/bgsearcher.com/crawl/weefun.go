@@ -63,3 +63,13 @@ func (s Weefun) GetSearchResults(query string) []SearchResult {
 
 	return results
 }
+
+// GetNewArrivals is an exported method of Crawler by Weefun
+func (s Weefun) GetNewArrivals() []NewArrival {
+	var info = &(s.Info)
+	var results []NewArrival
+
+	log.Println(info)
+
+	return results
+}

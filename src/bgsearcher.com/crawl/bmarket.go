@@ -83,3 +83,13 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 
 	return results
 }
+
+// GetNewArrivals is an exported method of Crawler by BMarket
+func (s BMarket) GetNewArrivals() []NewArrival {
+	var info = &(s.Info)
+	var results []NewArrival
+
+	log.Println(info)
+
+	return results
+}

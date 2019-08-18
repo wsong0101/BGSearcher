@@ -37,11 +37,12 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.Boardpia{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://boardpia.co.kr/mall/product_list.html?search=",
-			Name:         "보드피아",
-			URL:          "http://boardpia.co.kr",
-			LinkPrefix:   "http://boardpia.co.kr",
-			FireStoreDir: "boardpia",
+			QueryURL:      "http://boardpia.co.kr/mall/product_list.html?search=",
+			Name:          "보드피아",
+			URL:           "http://boardpia.co.kr",
+			LinkPrefix:    "http://boardpia.co.kr/mall/",
+			FireStoreDir:  "boardpia",
+			NewArrivalURL: "http://boardpia.co.kr/mall/mall_notice.html",
 		},
 	},
 	crawl.CardCastle{
@@ -138,4 +139,17 @@ func Search(query string) []crawl.SearchResult {
 			return results
 		}
 	}
+}
+
+var newArrivals []crawl.NewArrival
+
+// UpdateNewArrivals runs repeatedly to crawl sites' new arrivals
+func UpdateNewArrivals(period int) {
+	result := crawlers[3].GetNewArrivals()
+	newArrivals = append(newArrivals, result...)
+}
+
+// GetNewArrivalsFromCache returns cached new arrivals data
+func GetNewArrivalsFromCache() []crawl.NewArrival {
+	return newArrivals
 }

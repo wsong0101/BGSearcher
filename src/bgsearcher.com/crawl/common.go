@@ -1,5 +1,11 @@
 package crawl
 
+import (
+	"time"
+)
+
+var newArrivalsLimit float64 = 20 * 24 // hours
+
 // SearchResult represents individual game info
 type SearchResult struct {
 	Company string
@@ -11,16 +17,24 @@ type SearchResult struct {
 	SoldOut bool
 }
 
+// NewArrival represents arrived games at the time
+type NewArrival struct {
+	UpTime  time.Time
+	Results []SearchResult
+}
+
 // ShopInfo represents each shop's information
 type ShopInfo struct {
-	URL          string
-	Name         string
-	QueryURL     string
-	LinkPrefix   string
-	FireStoreDir string
+	URL           string
+	Name          string
+	QueryURL      string
+	LinkPrefix    string
+	FireStoreDir  string
+	NewArrivalURL string
 }
 
 // Crawler is the interface for boardgame shops' funcs
 type Crawler interface {
 	GetSearchResults(query string) []SearchResult
+	GetNewArrivals() []NewArrival
 }

@@ -67,3 +67,13 @@ func (s DevilDice) GetSearchResults(query string) []SearchResult {
 
 	return results
 }
+
+// GetNewArrivals is an exported method of Crawler by DevilDice
+func (s DevilDice) GetNewArrivals() []NewArrival {
+	var info = &(s.Info)
+	var results []NewArrival
+
+	log.Println(info)
+
+	return results
+}

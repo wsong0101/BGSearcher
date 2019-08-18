@@ -91,3 +91,13 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 
 	return results
 }
+
+// GetNewArrivals is an exported method of Crawler by DiveDice
+func (s DiveDice) GetNewArrivals() []NewArrival {
+	var info = &(s.Info)
+	var results []NewArrival
+
+	log.Println(info)
+
+	return results
+}

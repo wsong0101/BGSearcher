@@ -66,3 +66,13 @@ func (s GameArchive) GetSearchResults(query string) []SearchResult {
 
 	return results
 }
+
+// GetNewArrivals is an exported method of Crawler by GameArchive
+func (s GameArchive) GetNewArrivals() []NewArrival {
+	var info = &(s.Info)
+	var results []NewArrival
+
+	log.Println(info)
+
+	return results
+}

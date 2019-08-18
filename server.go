@@ -30,6 +30,7 @@ func main() {
 	runtime.GOMAXPROCS(1)
 
 	cloud.InitializeCloud()
+	api.UpdateNewArrivals(1800) // every 30 min
 
 	e := echo.New()
 	renderer := &TemplateRenderer{
@@ -38,10 +39,10 @@ func main() {
 	e.Renderer = renderer
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "main.html", map[string]interface{}{
-			"name": "Dolly!",
+		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
+			"content": "main",
 		})
-	}).Name = "foobar"
+	}).Name = "main"
 
 	e.POST("/search", func(c echo.Context) error {
 		query := c.QueryParam("query")
@@ -51,6 +52,11 @@ func main() {
 
 	e.POST("/hits", func(c echo.Context) error {
 		result := cloud.GetHits()
+		return c.JSON(http.StatusOK, result)
+	})
+
+	e.POST("/newarrivals", func(c echo.Context) error {
+		result := api.GetNewArrivalsFromCache()
 		return c.JSON(http.StatusOK, result)
 	})
 
