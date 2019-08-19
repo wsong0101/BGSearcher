@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -54,9 +55,9 @@ func (s GameArchive) GetSearchResults(query string) []SearchResult {
 			soldOut = true
 		}
 
-		name1 := s.Find(".txt").Find("em").Text()
+		name1 := s.Find(".txt").Find("strong").Text()
 
-		name2 := s.Find(".txt").Find("strong").Text()
+		name2 := s.Find(".txt").Find("em").Text()
 
 		price := s.Find(".cost").Find("strong").Text() + "원"
 
@@ -67,12 +68,62 @@ func (s GameArchive) GetSearchResults(query string) []SearchResult {
 	return results
 }
 
+var previousGameArcNewArrival NewArrival
+
 // GetNewArrivals is an exported method of Crawler by GameArchive
 func (s GameArchive) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
+	var searched []SearchResult
 
-	log.Println(info)
+	resp, err := http.Get(info.NewArrivalURL)
+	if err != nil {
+		log.Printf("GameArchive: Failed to get new arrival page")
+		return results
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("GameArchive: Failed to read arrival response")
+		return results
+	}
+
+	doc.Find(".space").Each(func(i int, s *goquery.Selection) {
+		url, exists := s.Find(".thumbnail").Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = info.LinkPrefix + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".thumbnail").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = cloud.GetURLFromCloud(info.FireStoreDir+img, info.LinkPrefix+img)
+
+		var soldOut = false
+		_, exists = s.Find(".txt").Find("img").Attr("src")
+		if exists {
+			soldOut = true
+		}
+
+		name := s.Find(".txt").Find("strong").Text()
+
+		price := s.Find(".cost").Find("strong").Text() + "원"
+
+		searched = append(searched, SearchResult{
+			info.Name, url, img, name, "", price, soldOut})
+	})
+
+	if isEqualSearchResults(previousGameArcNewArrival.Results, searched) {
+		results = append(results, previousGameArcNewArrival)
+		log.Println("GameArchive: equal result. no change.")
+	} else {
+		var newArrival = NewArrival{time.Now(), searched}
+		results = append(results, newArrival)
+		previousGameArcNewArrival = newArrival
+	}
 
 	return results
 }

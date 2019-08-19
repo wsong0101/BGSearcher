@@ -17,7 +17,7 @@
                         <p class="card-text">${data.Name2}</p>
                     </div>
                     <div class="card-footer">
-                        <p class="card-text" v-if="data.Price != ''">${data.Price}</p>
+                        <p class="card-text" v-if="!data.SoldOut">${data.Price}</p>
                         <p class="card-text" v-if="data.SoldOut">품절</p>
                     </div>
                 </div>   

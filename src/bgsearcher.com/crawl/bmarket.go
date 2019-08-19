@@ -84,32 +84,12 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 	return results
 }
 
-var previousNewArrival NewArrival
-
-func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {
-	if len(l) != len(r) {
-		return false
-	}
-
-	for i := 0; i < len(l); i++ {
-		var lElem = l[i]
-		var rElem = r[i]
-		if lElem.Name != rElem.Name {
-			return false
-		}
-	}
-
-	return true
-}
+var previousBmarketNewArrival NewArrival
 
 // GetNewArrivals is an exported method of Crawler by BMarket
 func (s BMarket) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
-	if len(results) == 0 {
-		// BMarket new item list is not trustworthy
-		return results
-	}
 	var searched []SearchResult
 
 	resp, err := http.Get(info.NewArrivalURL)
@@ -151,13 +131,13 @@ func (s BMarket) GetNewArrivals() []NewArrival {
 			info.Name, url, img, name, "", price, isSoldOut})
 	})
 
-	if isEqualSearchResults(previousNewArrival.Results, searched) {
-		results = append(results, previousNewArrival)
+	if isEqualSearchResults(previousBmarketNewArrival.Results, searched) {
+		results = append(results, previousBmarketNewArrival)
 		log.Println("BMarket: equal result. no change.")
 	} else {
 		var newArrival = NewArrival{time.Now(), searched}
 		results = append(results, newArrival)
-		previousNewArrival = newArrival
+		previousBmarketNewArrival = newArrival
 	}
 
 	return results

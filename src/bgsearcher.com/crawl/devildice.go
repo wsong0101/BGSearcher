@@ -122,7 +122,7 @@ func (s DevilDice) GetNewArrivals() []NewArrival {
 		if !exists {
 			return
 		}
-		img = info.LinkPrefix + img
+		img = cloud.GetURLFromCloud(info.FireStoreDir+img, info.LinkPrefix+img)
 
 		isSoldOut := false
 		name := s.Find(".txt").Find("strong").Text()

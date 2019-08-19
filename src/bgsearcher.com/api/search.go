@@ -77,11 +77,12 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.GameArchive{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://gamearc.co.kr/goods/goods_search.php?keyword=",
-			Name:         "게임아카이브",
-			URL:          "http://www.gamearc.co.kr",
-			LinkPrefix:   "http://www.gamearc.co.kr",
-			FireStoreDir: "gamearchive",
+			QueryURL:      "http://gamearc.co.kr/goods/goods_search.php?keyword=",
+			Name:          "게임아카이브",
+			URL:           "http://www.gamearc.co.kr",
+			LinkPrefix:    "http://www.gamearc.co.kr",
+			FireStoreDir:  "gamearchive",
+			NewArrivalURL: "http://gamearc.co.kr/goods/goods_main.php?sno=8",
 		},
 	},
 	crawl.HobbyGameMall{

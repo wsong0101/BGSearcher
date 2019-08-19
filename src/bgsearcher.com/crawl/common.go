@@ -38,3 +38,19 @@ type Crawler interface {
 	GetSearchResults(query string) []SearchResult
 	GetNewArrivals() []NewArrival
 }
+
+func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {
+	if len(l) != len(r) {
+		return false
+	}
+
+	for i := 0; i < len(l); i++ {
+		var lElem = l[i]
+		var rElem = r[i]
+		if lElem.Name != rElem.Name {
+			return false
+		}
+	}
+
+	return true
+}
