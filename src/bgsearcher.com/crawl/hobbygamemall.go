@@ -74,10 +74,6 @@ func (s HobbyGameMall) GetSearchResults(query string) []SearchResult {
 
 // GetNewArrivals is an exported method of Crawler by HobbyGameMall
 func (s HobbyGameMall) GetNewArrivals() []NewArrival {
-	var info = &(s.Info)
 	var results []NewArrival
-
-	log.Println(info)
-
 	return results
 }

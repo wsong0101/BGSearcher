@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
+	"time"
 
 	"bgsearcher.com/util"
 	"github.com/PuerkitoBio/goquery"
@@ -69,7 +71,83 @@ func (s Weefun) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
 
-	log.Println(info)
+	resp, err := http.Get(info.NewArrivalURL)
+	if err != nil {
+		log.Printf("Weefun: Failed to get new arrival page")
+		return results
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("Weefun: Failed to read arrival response")
+		return results
+	}
+
+	doc.Find(".tb-left").Each(func(i int, s *goquery.Selection) {
+		title := util.ToUTF8(s.Find("a").Text())
+		if title == "" {
+			return
+		}
+		regStr := "([0-9]+)년 ([0-9]+)월 ([0-9]+)일"
+		if match, _ := regexp.MatchString(regStr, title); !match {
+			return
+		}
+		r, _ := regexp.Compile(regStr)
+		matches := r.FindStringSubmatch(title)
+		year := matches[1]
+		month := matches[2]
+		day := matches[3]
+
+		upTime, _ := time.Parse("2006-01-02", year+"-"+month+"-"+day)
+		now := time.Now()
+		diff := now.Sub(upTime)
+		if diff.Hours() > newArrivalsLimit {
+			return
+		}
+
+		link, exists := s.Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		link = info.LinkPrefix + link
+
+		resp2, err2 := http.Get(link)
+		if err2 != nil {
+			log.Printf("Weefun: Failed to get new arrival detail page: %s", link)
+			return
+		}
+		defer resp2.Body.Close()
+
+		doc2, err2 := goquery.NewDocumentFromReader(resp2.Body)
+		if err2 != nil {
+			log.Printf("Weefun: Failed to read arrival detail response")
+			return
+		}
+
+		var searched []SearchResult
+		doc2.Find(".fixed-img-collist").Find("li").Each(func(j int, ss *goquery.Selection) {
+			url, exists := ss.Find("a").Attr("href")
+			if !exists {
+				return
+			}
+			url = info.LinkPrefix + url
+
+			img, exists := ss.Find("img").Attr("src")
+			if !exists {
+				return
+			}
+			img = info.LinkPrefix + img
+
+			name := util.ToUTF8(ss.Find("a").Children().Eq(1).Text())
+			price := util.ToUTF8(ss.Children().Eq(1).Text())
+
+			searched = append(searched, SearchResult{
+				info.Name, url, img, name, "", price, false})
+		})
+
+		results = append(results, NewArrival{upTime, searched})
+	})
 
 	return results
 }

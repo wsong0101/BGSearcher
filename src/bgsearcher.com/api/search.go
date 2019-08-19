@@ -105,11 +105,12 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.Weefun{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://weefun.co.kr/shop/shopbrand.html?search&page=1&sort=brandname&prize1=",
-			Name:         "위펀",
-			URL:          "http://www.weefun.co.kr",
-			LinkPrefix:   "http://www.weefun.co.kr",
-			FireStoreDir: "weefun",
+			QueryURL:      "http://weefun.co.kr/shop/shopbrand.html?search&page=1&sort=brandname&prize1=",
+			Name:          "위펀",
+			URL:           "http://www.weefun.co.kr",
+			LinkPrefix:    "http://www.weefun.co.kr",
+			FireStoreDir:  "weefun",
+			NewArrivalURL: "http://www.weefun.co.kr/board/board.html?code=weefun_board9",
 		},
 	},
 }

@@ -90,11 +90,12 @@ func (s DevilDice) GetNewArrivals() []NewArrival {
 	}
 
 	title := doc.Find(".cg-main").Find("h2").Eq(0).Text()
-	if match, _ := regexp.MatchString("\\[.*([0-9]+.+[0-9]+).*\\]", title); !match {
+	regStr := "\\[.*([0-9]+.+[0-9]+).*\\]"
+	if match, _ := regexp.MatchString(regStr, title); !match {
 		log.Printf("DevilDice: Failed to date from title: %s", title)
 		return results
 	}
-	r, _ := regexp.Compile("\\[.*([0-9]+.+[0-9]+).*\\]")
+	r, _ := regexp.Compile(regStr)
 	splits := strings.Split(r.FindStringSubmatch(title)[1], ".")
 	month, _ := strconv.Atoi(splits[0])
 	day := splits[1]

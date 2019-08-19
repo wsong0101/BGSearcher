@@ -10,15 +10,17 @@
             <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="(data, i) in arrival.Results">
                 <div class="card text-center">
                     <div class="card-img-top">
-                        <img :src="data.Img" :alt="data.Name">
+                        <a :href="data.Link" target="blank"><img :src="data.Img" :alt="data.Name"></a>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">${data.Name}</h5>
-                        <p class="card-text">${data.Name2}</p>
+                        <a :href="data.Link" target="blank"><h5 class="card-title">${data.Name}</h5>
+                        </a>
+                        <p class="card-text" v-if="data.Name2 != ''">${data.Name2}</p>
                     </div>
                     <div class="card-footer">
-                        <p class="card-text" v-if="!data.SoldOut">${data.Price}</p>
-                        <p class="card-text" v-if="data.SoldOut">품절</p>
+                        <a :href="GetSearchLink(data.Name)" class="btn btn-info float-right">검색</a>
+                        <p class="card-text py-2" v-if="!data.SoldOut">${data.Price}</p>
+                        <p class="card-text py-2" v-if="data.SoldOut">품절</p>
                     </div>
                 </div>   
             </div>
@@ -36,7 +38,7 @@
         flex: 1;
     }
 
-    .card-img-top > img {
+    .card-img-top > a > img {
         max-height: 200px;
     }
 </style>
@@ -82,7 +84,6 @@
                         }
                         return 0
                     })
-                    console.log(resp.data)
                 })
                 .catch(function (err) {
                     console.log(err)
@@ -92,6 +93,9 @@
                 var ymd = str.split("T")[0]
                 var slits = ymd.split("-")
                 return slits[1] + "월 " + slits[2] + "일"
+            },
+            GetSearchLink: function(query) {
+                return "/search?query=" + query
             }
         }
     })
