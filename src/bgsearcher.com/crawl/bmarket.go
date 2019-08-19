@@ -108,7 +108,7 @@ func (s BMarket) GetNewArrivals() []NewArrival {
 	var results []NewArrival
 	if len(results) == 0 {
 		// BMarket new item list is not trustworthy
-		return
+		return results
 	}
 	var searched []SearchResult
 
