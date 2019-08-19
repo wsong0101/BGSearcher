@@ -4,7 +4,10 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -73,7 +76,66 @@ func (s DevilDice) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
 
-	log.Println(info)
+	resp, err := http.Get(info.NewArrivalURL)
+	if err != nil {
+		log.Printf("DevilDice: Failed to get new arrival page")
+		return results
+	}
+	defer resp.Body.Close()
 
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("DevilDice: Failed to read arrival response")
+		return results
+	}
+
+	title := doc.Find(".cg-main").Find("h2").Eq(0).Text()
+	if match, _ := regexp.MatchString("\\[.*([0-9]+.+[0-9]+).*\\]", title); !match {
+		log.Printf("DevilDice: Failed to date from title: %s", title)
+		return results
+	}
+	r, _ := regexp.Compile("\\[.*([0-9]+.+[0-9]+).*\\]")
+	splits := strings.Split(r.FindStringSubmatch(title)[1], ".")
+	month, _ := strconv.Atoi(splits[0])
+	day := splits[1]
+	now := time.Now()
+	year := now.Year()
+	if month > int(now.Month()) {
+		year--
+	}
+
+	upTime, _ := time.Parse("2006-1-02", strconv.Itoa(year)+"-"+strconv.Itoa(month)+"-"+day)
+	diff := now.Sub(upTime)
+	if diff.Hours() > newArrivalsLimit {
+		return results
+	}
+
+	var searched []SearchResult
+	doc.Find(".space").Each(func(i int, s *goquery.Selection) {
+		url, exists := s.Find(".thumbnail").Find("a").Attr("href")
+		if !exists {
+			return
+		}
+		url = info.LinkPrefix + strings.Split(url, "..")[1]
+
+		img, exists := s.Find(".thumbnail").Find("img").Attr("src")
+		if !exists {
+			return
+		}
+		img = info.LinkPrefix + img
+
+		isSoldOut := false
+		name := s.Find(".txt").Find("strong").Text()
+		price := s.Find(".cost").Text()
+		if price == "품절" {
+			price = ""
+			isSoldOut = true
+		}
+
+		searched = append(searched, SearchResult{
+			info.Name, url, img, name, "", price, isSoldOut})
+	})
+
+	results = append(results, NewArrival{upTime, searched})
 	return results
 }

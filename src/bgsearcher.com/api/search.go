@@ -58,11 +58,12 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.DevilDice{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://devildice.co.kr/goods/goods_search.php?keyword=",
-			Name:         "데블다이스",
-			URL:          "http://devildice.co.kr",
-			LinkPrefix:   "http://devildice.co.kr",
-			FireStoreDir: "devildice",
+			QueryURL:      "http://devildice.co.kr/goods/goods_search.php?keyword=",
+			Name:          "데블다이스",
+			URL:           "http://devildice.co.kr",
+			LinkPrefix:    "http://devildice.co.kr",
+			FireStoreDir:  "devildice",
+			NewArrivalURL: "http://devildice.co.kr/goods/goods_main.php?sno=3",
 		},
 	},
 	crawl.DiveDice{

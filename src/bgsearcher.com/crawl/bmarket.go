@@ -106,6 +106,10 @@ func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {
 func (s BMarket) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
+	if len(results) == 0 {
+		// BMarket new item list is not trustworthy
+		return
+	}
 	var searched []SearchResult
 
 	resp, err := http.Get(info.NewArrivalURL)
