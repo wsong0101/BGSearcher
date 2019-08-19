@@ -10,11 +10,12 @@ import (
 var crawlers = []crawl.Crawler{
 	crawl.BMarket{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://shopping.boardlife.co.kr/list.php?&action=search&search01=",
-			Name:         "비마켓",
-			URL:          "http://shopping.boardlife.co.kr",
-			LinkPrefix:   "http://shopping.boardlife.co.kr/",
-			FireStoreDir: "bmarket",
+			QueryURL:      "http://shopping.boardlife.co.kr/list.php?&action=search&search01=",
+			Name:          "비마켓",
+			URL:           "http://shopping.boardlife.co.kr",
+			LinkPrefix:    "http://shopping.boardlife.co.kr/",
+			FireStoreDir:  "bmarket",
+			NewArrivalURL: "http://shopping.boardlife.co.kr/html_file.php?file=new_instock.html",
 		},
 	},
 	crawl.BoardgameMall{
@@ -28,11 +29,12 @@ var crawlers = []crawl.Crawler{
 	},
 	crawl.BoardM{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://www.boardm.co.kr/goods/goods_search.php?keyword=",
-			Name:         "보드엠",
-			URL:          "http://www.boardm.co.kr",
-			LinkPrefix:   "http://www.boardm.co.kr",
-			FireStoreDir: "boardm",
+			QueryURL:      "http://www.boardm.co.kr/goods/goods_search.php?keyword=",
+			Name:          "보드엠",
+			URL:           "http://www.boardm.co.kr",
+			LinkPrefix:    "http://www.boardm.co.kr",
+			FireStoreDir:  "boardm",
+			NewArrivalURL: "http://www.boardm.co.kr/goods/goods_list.php?cateCd=024",
 		},
 	},
 	crawl.Boardpia{
@@ -145,8 +147,12 @@ var newArrivals []crawl.NewArrival
 
 // UpdateNewArrivals runs repeatedly to crawl sites' new arrivals
 func UpdateNewArrivals(period int) {
-	result := crawlers[3].GetNewArrivals()
-	newArrivals = append(newArrivals, result...)
+	for i := 0; i < len(crawlers); i++ {
+		var crawler = crawlers[i]
+
+		result := crawler.GetNewArrivals()
+		newArrivals = append(newArrivals, result...)
+	}
 }
 
 // GetNewArrivalsFromCache returns cached new arrivals data

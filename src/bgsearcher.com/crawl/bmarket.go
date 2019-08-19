@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"bgsearcher.com/util"
 	"github.com/PuerkitoBio/goquery"
@@ -49,8 +50,7 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 				return
 			}
 		}
-		img = strings.Split(img, "./")[1]
-		img = info.LinkPrefix + img
+		img = info.LinkPrefix + strings.Split(img, "./")[1]
 
 		var soldOut = false
 
@@ -84,12 +84,77 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 	return results
 }
 
+var previousNewArrival NewArrival
+
+func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {
+	if len(l) != len(r) {
+		return false
+	}
+
+	for i := 0; i < len(l); i++ {
+		var lElem = l[i]
+		var rElem = r[i]
+		if lElem.Name != rElem.Name {
+			return false
+		}
+	}
+
+	return true
+}
+
 // GetNewArrivals is an exported method of Crawler by BMarket
 func (s BMarket) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
+	var searched []SearchResult
 
-	log.Println(info)
+	resp, err := http.Get(info.NewArrivalURL)
+	if err != nil {
+		log.Printf("BMarket: Failed to get new arrival page")
+		return results
+	}
+	defer resp.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		log.Printf("BMarket: Failed to read arrival response")
+		return results
+	}
+
+	doc.Find("#contents").Find("tr").Each(func(i int, s *goquery.Selection) {
+		aTag := s.Children().Children().Eq(1).Children().Children().Children().Children()
+		url, exists := aTag.Attr("href")
+		if !exists {
+			return
+		}
+		url = info.LinkPrefix + strings.Split(url, "./")[1]
+
+		img, exists := aTag.Children().Attr("src")
+		if !exists {
+			return
+		}
+		img = info.LinkPrefix + strings.Split(img, "./")[1]
+
+		isSoldOut := false
+		name := util.ToUTF8(s.Siblings().Find(".game_title").Text())
+		price := util.ToUTF8(s.Siblings().Find(".game_price").Text())
+		if price == "품절" {
+			price = ""
+			isSoldOut = true
+		}
+
+		searched = append(searched, SearchResult{
+			info.Name, url, img, name, "", price, isSoldOut})
+	})
+
+	if isEqualSearchResults(previousNewArrival.Results, searched) {
+		results = append(results, previousNewArrival)
+		log.Println("BMarket: equal result. no change.")
+	} else {
+		var newArrival = NewArrival{time.Now(), searched}
+		results = append(results, newArrival)
+		previousNewArrival = newArrival
+	}
 
 	return results
 }

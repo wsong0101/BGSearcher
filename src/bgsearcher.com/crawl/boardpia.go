@@ -135,8 +135,8 @@ func (s Boardpia) GetNewArrivals() []NewArrival {
 			name := ss.Find(".mall_product").Find("b").Eq(0).Text()
 			name = util.ToUTF8(name)
 
-			name2 := ss.Find(".mall_product").Find("font").Find("font").Text()
-			name2 = util.ToUTF8(name2)
+			// name2 := ss.Find(".mall_product").Find("font").Find("font").Eq(0).Text()
+			name2 := ""
 
 			price := ss.Find(".mall_product").Find("b").Eq(1).Text()
 			price = util.ToUTF8(price)
