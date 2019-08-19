@@ -1,4 +1,4 @@
-{{define "new-arrival"}}
+{{define "new-arrivals"}}
 
 <div id="app">
     <div v-for="arrival in newArrivals">
@@ -7,7 +7,7 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="(data, i) in arrival.Results">
+            <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="data in arrival.Results">
                 <div class="card text-center">
                     <div class="card-img-top">
                         <a :href="data.Link" target="blank"><img :src="data.Img" :alt="data.Name"></a>
@@ -64,6 +64,10 @@
                         return
                     }
 
+                    self.newArrivals = self.newArrivals.filter(data => {
+                        return data.Results != null
+                    })
+
                     self.newArrivals.sort((l, r) => {
                         var lYmd = l.UpTime.split("T")[0].split("-")
                         var rYmd = r.UpTime.split("T")[0].split("-")
@@ -95,7 +99,7 @@
                 return slits[1] + "월 " + slits[2] + "일"
             },
             GetSearchLink: function(query) {
-                return "/search?query=" + query
+                return "/search?query=" + encodeURI(query)
             }
         }
     })

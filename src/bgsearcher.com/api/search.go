@@ -154,6 +154,9 @@ func UpdateNewArrivals(period int) {
 		var crawler = crawlers[i]
 
 		result := crawler.GetNewArrivals()
+		if len(result) <= 0 {
+			continue
+		}
 		newArrivals = append(newArrivals, result...)
 	}
 }

@@ -9,8 +9,7 @@
                     <a :href="data.Link" target="blank"><img :src="data.Img" :alt="data.Name"></a>
                 </div>
                 <div class="card-body">
-                    <a :href="data.Link" target="blank"><h5 class="card-title">${data.Name}</h5>
-                    </a>
+                    <a :href="data.Link" target="blank"><h5 class="card-title">${data.Name}</h5></a>
                     <p class="card-text" v-if="data.Name2 != ''">${data.Name2}</p>
                 </div>
                 <div class="card-footer">
@@ -22,15 +21,25 @@
     </div>
 </div>
 
+<style>
+    .row {
+        margin-bottom: 10px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .card-img-top > a > img {
+        max-height: 200px;
+    }
+</style>
+
 <script>
-    const router = new VueRouter({ 
-        routes, 
-        mode:'history' 
-    });
     new Vue({
         delimiters: ['${', '}'],
         el: '#app',
-        router,
         data: {
             query: "",
             results: [],
@@ -38,7 +47,8 @@
             emptyResult: false
         },
         mounted: function() {
-            this.query = this.$route.query.query
+            var url = new URL(decodeURIComponent(location.href));
+            this.query = url.searchParams.get("query");
             if (this.query != "") {
                 this.Search()
             }
@@ -108,11 +118,6 @@
                     console.log(error)
                 })
                 
-            },
-            Refresh: function(event) {
-                this.results = []
-                this.emptyResult = false
-                this.query = ""
             }
         }
     })

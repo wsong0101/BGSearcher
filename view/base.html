@@ -28,7 +28,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://kit.fontawesome.com/070f2a3fdb.js"></script>
 
     <title>BGSearcher!</title>
 
@@ -46,27 +45,37 @@
 </head>
 <body>
     <div class="container">
-        <nav class="navbar sticky-top navbar-light bg-white">
-            <a class="navbar-brand" href="/">BGSearcher!</a>
-            <form class="form-inline">
-                <input class="form-control mr-sm-4" type="search" placeholder="검색어 입력" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
-            </form>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="/"><h3>BGSearcher!</h3></a>
+            
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">홈<span class="sr-only">(current)</span></a>
+                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/new-arrivals">신규입고</a>
+                        <a class="nav-link" href="/new-arrivals">신규 입고</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/search">검색</a>
                     </li>
                 </ul>
+                <form class="form-inline my-2 my-lg-0" action="/search">
+                    <input class="form-control mr-sm-2" name="query" type="search" placeholder="검색어 입력" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
+                </form>
             </div>
         </nav>
         
-        {{ if eq .content "main" }}
-            {{ template "main" }}
+        {{ if eq .content "new-arrivals" }}
+            {{ template "new-arrivals" }}
         {{ else if eq .content "search" }}
             {{ template "search" }}
         {{ else }}
-            {{ template "new-arrival" }}
+            {{ template "main" }}
         {{ end }}
 
         <div class="alert alert-dark text-center" role="alert">
