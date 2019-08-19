@@ -53,9 +53,9 @@ func (s Weefun) GetSearchResults(query string) []SearchResult {
 			soldOut = true
 		}
 
-		name1 := util.ToUTF8(s.Find(".subname").Text())
+		name1 := util.ToUTF8(s.Find(".dsc").Text())
 
-		name2 := util.ToUTF8(s.Find(".dsc").Text())
+		name2 := util.ToUTF8(s.Find(".subname").Text())
 
 		price := util.ToUTF8(s.Find(".price").Text())
 

@@ -1,10 +1,13 @@
 {{define "search"}}
 
 <div id="app">
-    <div v-if="emptyResult">검색 결과가 없습니다.</div>
+    <div class="alert alert-danger text-center" role="alert" v-if="emptyResult">
+        검색 결과가 없습니다.
+    </div>
     <div class="row">
         <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="data in results">
             <div class="card text-center">
+                <h6 class="card-header bg-info">${data.Company}</h6>
                 <div class="card-img-top">
                     <a :href="data.Link" target="blank"><img :src="data.Img" :alt="data.Name"></a>
                 </div>
@@ -13,8 +16,8 @@
                     <p class="card-text" v-if="data.Name2 != ''">${data.Name2}</p>
                 </div>
                 <div class="card-footer">
-                    <p class="card-text py-2" v-if="!data.SoldOut">${data.Price}</p>
-                    <p class="card-text py-2" v-if="data.SoldOut">품절</p>
+                    <p class="card-text" v-if="!data.SoldOut">${data.Price}</p>
+                    <p class="card-text" v-if="data.SoldOut">품절</p>
                 </div>
             </div>   
         </div>
@@ -33,6 +36,11 @@
 
     .card-img-top > a > img {
         max-height: 200px;
+        max-width: 100%;
+    }
+
+    .bg-info {
+        background-color: #B8DAFF !important;
     }
 </style>
 
@@ -49,6 +57,9 @@
         mounted: function() {
             var url = new URL(decodeURIComponent(location.href));
             this.query = url.searchParams.get("query");
+            if (this.query == null) {
+                this.query = ""
+            }
             if (this.query != "") {
                 this.Search()
             }

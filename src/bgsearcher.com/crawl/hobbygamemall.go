@@ -59,9 +59,9 @@ func (s HobbyGameMall) GetSearchResults(query string) []SearchResult {
 			nameIndex = 2
 		}
 
-		name1 := ""
+		name1 := util.ToUTF8(s.Find("div").Eq(nameIndex).Find("a").Text())
 
-		name2 := util.ToUTF8(s.Find("div").Eq(nameIndex).Find("a").Text())
+		name2 := ""
 
 		price := util.ToUTF8(s.Find("b").Text())
 

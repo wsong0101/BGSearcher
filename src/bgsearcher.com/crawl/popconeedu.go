@@ -49,9 +49,9 @@ func (s PopconeEdu) GetSearchResults(query string) []SearchResult {
 			img = info.LinkPrefix + strings.Split(img, "..")[1]
 		}
 
-		name1 := ""
+		name1 := util.ToUTF8(s.Find(".i_name").Text())
 
-		name2 := util.ToUTF8(s.Find(".i_name").Text())
+		name2 := ""
 
 		price := s.Find(".price").Text() + "원"
 

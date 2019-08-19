@@ -47,13 +47,13 @@ func (s Boardpia) GetSearchResults(query string) []SearchResult {
 			return
 		}
 
-		name1 := s.Find("font.mall_product").Eq(0).Text()
-		if name1 == "" {
+		name1 := s.Find("font.mall_product").Eq(1).Text()
+		name1 = strings.Split(name1, "\n")[0]
+
+		name2 := s.Find("font.mall_product").Eq(0).Text()
+		if name2 == "" {
 			return
 		}
-
-		name2 := s.Find("font.mall_product").Eq(1).Text()
-		name2 = strings.Split(name2, "\n")[0]
 
 		price := s.Find("font.mall_product").Eq(1).Find("b").Text()
 

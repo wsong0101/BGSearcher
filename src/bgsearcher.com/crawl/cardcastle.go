@@ -51,9 +51,9 @@ func (s CardCastle) GetSearchResults(query string) []SearchResult {
 			soldOut = true
 		}
 
-		name1 := ""
+		name1 := s.Find(".name").Find("span").Text()
 
-		name2 := s.Find(".name").Find("span").Text()
+		name2 := ""
 
 		price := s.Find("strong").Text()
 

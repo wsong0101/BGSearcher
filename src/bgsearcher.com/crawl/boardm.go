@@ -52,11 +52,11 @@ func (s BoardM) GetSearchResults(query string) []SearchResult {
 
 		_, soldOut := s.Find(".txt").Find("img").Attr("src")
 
-		name1 := s.Find(".txt").Find("strong").Text()
+		name1 := s.Find(".txt").Find("strong").Find("b").Text()
 
-		name2 := s.Find(".txt").Find("strong").Find("b").Text()
-		if name2 != "" {
-			name1 = strings.Split(name1, name2)[0]
+		name2 := s.Find(".txt").Find("strong").Text()
+		if name1 != "" {
+			name2 = strings.Split(name2, name1)[0]
 		}
 
 		price := s.Find(".sale").Find("strong").Text()

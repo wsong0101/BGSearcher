@@ -18,13 +18,13 @@ type DiveDice struct {
 
 // ddResponse is a struct form DiveDice's json search response
 type ddResponse struct {
-	total    string
-	totPage  int
-	pageList string
-	offset   int
-	sQL      string
-	pagenum  int
-	html     string
+	Total    string
+	TotPage  int
+	PageList string
+	Offset   int
+	SQL      string
+	Pagenum  int
+	HTML     string
 }
 
 // GetSearchResults is an exported method of Crawler
@@ -54,7 +54,7 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 		return results
 	}
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(ddResp.html))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(ddResp.HTML))
 	if err != nil {
 		log.Printf("DiveDice: Failed to read from response")
 		return results
@@ -62,9 +62,8 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 
 	doc.Find("li").Each(func(i int, s *goquery.Selection) {
 		// each item
-		url, exists := s.Find(".thum").Find("a").Eq(1).Attr("href")
+		url, exists := s.Find(".thum").Children().Eq(1).Attr("href")
 		if !exists {
-			return
 		}
 		url = info.LinkPrefix + url
 
@@ -73,9 +72,9 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 			return
 		}
 
-		name1 := ""
+		name1 := s.Find("h3").Find("a").Text()
 
-		name2 := s.Find("h3").Find("a").Text()
+		name2 := ""
 
 		price := s.Find(".price").Text()
 
