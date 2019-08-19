@@ -42,7 +42,26 @@ func main() {
 		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
 			"content": "main",
 		})
-	}).Name = "main"
+	})
+
+	e.GET("/search", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
+			"content": "search",
+		})
+	})
+
+	e.GET("/new-arrivals", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
+			"content": "new-arrivals",
+		})
+	})
+
+	// admin
+	e.GET("/admin", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
+			"content": "admin",
+		})
+	})
 
 	e.POST("/search", func(c echo.Context) error {
 		query := c.QueryParam("query")
@@ -61,13 +80,6 @@ func main() {
 	})
 
 	e.File("/favicon.ico", "favicon.ico")
-
-	// admin
-	e.GET("/admin", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "admin.html", map[string]interface{}{
-			"name": "Dolly!",
-		})
-	}).Name = "foobar"
 
 	e.POST("/remove", func(c echo.Context) error {
 		passwd := c.QueryParam("passwd")
