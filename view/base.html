@@ -45,7 +45,7 @@
 </head>
 <body>
     <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-white" id="nav-app">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -53,35 +53,80 @@
             
             <div class="collapse navbar-collapse" id="navbarToggler">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/">홈<span class="sr-only">(current)</span></a>
+                    <li class="nav-item" :class="current=='/' ? 'active' : ''">
+                        <a class="nav-link" href="/">홈</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" :class="current=='/new-arrivals' ? 'active' : ''">
                         <a class="nav-link" href="/new-arrivals">신규 입고</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" :class="current=='/search' ? 'active' : ''">
                         <a class="nav-link" href="/search">검색</a>
                     </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="/search">
-                    <input class="form-control mr-sm-2" name="query" type="search" placeholder="검색어 입력" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
+                    <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                                <div class="dropdown-menu">
+                                    <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                                </div>
+                            </div>
+                            <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                            </div>
+                        </div>                   
                 </form>
             </div>
         </nav>
         
-        {{ if eq .content "new-arrivals" }}
+        {{ if eq .Content "new-arrivals" }}
             {{ template "new-arrivals" }}
-        {{ else if eq .content "search" }}
+        {{ else if eq .Content "search" }}
             {{ template "search" }}
+        {{ else if eq .Content "admin" }}
+            {{ template "admin" }}
         {{ else }}
-            {{ template "main" }}
+            {{ template "main" . }}
         {{ end }}
 
         <div class="alert alert-dark text-center" role="alert">
                 Copyright ⓒ wsong<span class="text-muted">(wsong0101@gmail.com)</span> All rights reserved.
         </div>
     </div>
+
+    <script>
+        new Vue({
+            delimiters: ['${', '}'],
+            el: '#nav-app',
+            data: {
+                hits: [],
+                current: '',
+            },
+            mounted: function() {
+                this.GetHits()
+                
+                var url = new URL(decodeURIComponent(location.href));
+                this.current = url.pathname
+            },
+            methods: {
+                GetHits: function() {
+                    var self = this
+                    axios.post("/hits", null, {})
+                    .then(function (resp) {
+                        self.hits = resp.data
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    })
+                    
+                },
+                GetSearchLink: function(query) {
+                    return "/search?query=" + encodeURI(query)
+                }
+            }
+        })
+    </script>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

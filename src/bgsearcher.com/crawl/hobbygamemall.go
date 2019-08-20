@@ -16,6 +16,11 @@ type HobbyGameMall struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s HobbyGameMall) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s HobbyGameMall) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)

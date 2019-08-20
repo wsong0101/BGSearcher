@@ -37,6 +37,7 @@ type ShopInfo struct {
 type Crawler interface {
 	GetSearchResults(query string) []SearchResult
 	GetNewArrivals() []NewArrival
+	GetShopInfo() ShopInfo
 }
 
 func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {

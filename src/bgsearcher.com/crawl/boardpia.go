@@ -17,6 +17,11 @@ type Boardpia struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s Boardpia) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // GetSearchResults is an exported method of Crawler by Boardpia
 func (s Boardpia) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)

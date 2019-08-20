@@ -15,6 +15,11 @@ type PopconeEdu struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s PopconeEdu) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s PopconeEdu) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)

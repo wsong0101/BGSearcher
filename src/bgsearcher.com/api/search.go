@@ -7,7 +7,8 @@ import (
 	"bgsearcher.com/crawl"
 )
 
-var crawlers = []crawl.Crawler{
+// Crawlers is the arry for shops' information
+var Crawlers = []crawl.Crawler{
 	crawl.BMarket{
 		Info: crawl.ShopInfo{
 			QueryURL:      "http://shopping.boardlife.co.kr/list.php?&action=search&search01=",
@@ -117,13 +118,13 @@ var crawlers = []crawl.Crawler{
 
 // Search returns a slice of SearchResult
 func Search(query string) []crawl.SearchResult {
-	size := len(crawlers)
+	size := len(Crawlers)
 	wg := sync.WaitGroup{}
 	wg.Add(size)
 	ch := make(chan []crawl.SearchResult, size)
 
 	for i := 0; i < size; i++ {
-		var crawler = crawlers[i]
+		var crawler = Crawlers[i]
 
 		go func(ch chan []crawl.SearchResult, wg *sync.WaitGroup, crawler crawl.Crawler, query string) {
 			defer wg.Done()
@@ -150,8 +151,8 @@ var newArrivals []crawl.NewArrival
 
 // UpdateNewArrivals runs repeatedly to crawl sites' new arrivals
 func UpdateNewArrivals(period int) {
-	for i := 0; i < len(crawlers); i++ {
-		var crawler = crawlers[i]
+	for i := 0; i < len(Crawlers); i++ {
+		var crawler = Crawlers[i]
 
 		result := crawler.GetNewArrivals()
 		if len(result) <= 0 {
@@ -164,4 +165,14 @@ func UpdateNewArrivals(period int) {
 // GetNewArrivalsFromCache returns cached new arrivals data
 func GetNewArrivalsFromCache() []crawl.NewArrival {
 	return newArrivals
+}
+
+// GetShopInfos returns all shop's infos
+func GetShopInfos() []crawl.ShopInfo {
+	var shopInfos []crawl.ShopInfo
+	for i := 0; i < len(Crawlers); i++ {
+		crawler := Crawlers[i]
+		shopInfos = append(shopInfos, crawler.GetShopInfo())
+	}
+	return shopInfos
 }

@@ -16,6 +16,11 @@ type DiveDice struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s DiveDice) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // ddResponse is a struct form DiveDice's json search response
 type ddResponse struct {
 	Total    string

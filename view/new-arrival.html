@@ -1,6 +1,11 @@
 {{define "new-arrivals"}}
 
 <div id="app">
+    <div class="d-flex justify-content-center" v-if="searching">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
     <div v-for="arrival in newArrivals">
         <div class="alert alert-info text-center" role="alert">
                 ${GetTimeText(arrival.UpTime)} - ${arrival.Results[0].Company}
@@ -50,8 +55,10 @@
         el: '#app',
         data: {
             newArrivals: [],
+            searching: false,
         },
         mounted: function() {
+            this.searching = true
             this.GetNewArrivals()
         },
         methods: {
@@ -89,6 +96,8 @@
                         }
                         return 0
                     })
+
+                    self.searching = false
                 })
                 .catch(function (err) {
                     console.log(err)

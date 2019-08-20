@@ -16,6 +16,11 @@ type Weefun struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s Weefun) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s Weefun) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)

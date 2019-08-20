@@ -13,6 +13,11 @@ type CardCastle struct {
 	Info ShopInfo
 }
 
+// GetShopInfo returns the shop's info
+func (s CardCastle) GetShopInfo() ShopInfo {
+	return s.Info
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s CardCastle) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)

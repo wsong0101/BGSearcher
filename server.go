@@ -10,6 +10,7 @@ import (
 
 	"bgsearcher.com/api"
 	"bgsearcher.com/cloud"
+	"bgsearcher.com/crawl"
 )
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
@@ -26,11 +27,19 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+//PageData is a struct for rendering info
+type PageData struct {
+	Content   string
+	ShopInfos []crawl.ShopInfo
+}
+
 func main() {
 	runtime.GOMAXPROCS(1)
 
 	cloud.InitializeCloud()
-	api.UpdateNewArrivals(1800) // every 30 min
+	// api.UpdateNewArrivals(1800) // every 30 min
+
+	shopInfos := api.GetShopInfos()
 
 	e := echo.New()
 	renderer := &TemplateRenderer{
@@ -38,29 +47,25 @@ func main() {
 	}
 	e.Renderer = renderer
 
+	mainData := PageData{
+		Content:   "main",
+		ShopInfos: shopInfos,
+	}
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
-			"content": "main",
-		})
+		return c.Render(http.StatusOK, "base.html", &mainData)
 	})
 
 	e.GET("/search", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
-			"content": "search",
-		})
+		return c.Render(http.StatusOK, "base.html", PageData{"search", nil})
 	})
 
 	e.GET("/new-arrivals", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
-			"content": "new-arrivals",
-		})
+		return c.Render(http.StatusOK, "base.html", PageData{"new-arrivals", nil})
 	})
 
 	// admin
 	e.GET("/admin", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", map[string]interface{}{
-			"content": "admin",
-		})
+		return c.Render(http.StatusOK, "base.html", PageData{"admin", nil})
 	})
 
 	e.POST("/search", func(c echo.Context) error {
