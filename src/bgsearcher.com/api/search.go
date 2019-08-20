@@ -174,6 +174,7 @@ func UpdateNewArrivals(period time.Duration) {
 		wg.Wait()
 		close(ch)
 
+		newArrivals = newArrivals[:0]
 		for {
 			if result, success := <-ch; success {
 				newArrivals = append(newArrivals, result...)
