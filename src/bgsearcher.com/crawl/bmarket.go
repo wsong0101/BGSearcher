@@ -140,7 +140,9 @@ func (s BMarket) GetNewArrivals() []NewArrival {
 		results = append(results, previousBmarketNewArrival)
 		log.Println("BMarket: equal result. no change.")
 	} else {
-		var newArrival = NewArrival{time.Now(), searched}
+		now := time.Now()
+		upTime, _ := time.Parse("2006-01-02", now.Format("2006-01-02"))
+		var newArrival = NewArrival{upTime, searched}
 		results = append(results, newArrival)
 		previousBmarketNewArrival = newArrival
 	}

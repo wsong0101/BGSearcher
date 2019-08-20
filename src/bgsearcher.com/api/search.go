@@ -117,7 +117,7 @@ var Crawlers = []crawl.Crawler{
 	},
 	crawl.Coupang{
 		Info: crawl.ShopInfo{
-			QueryURL:     "https://www.coupang.com/np/search?filterType=rocket%2C&isPriceRange=false&page=1&component=332130&sorter=scoreDesc&listSize=72&q=",
+			QueryURL:     "https://www.coupang.com/np/search?component=332130&eventCategory=SRP&sorter=scoreDesc&filterType=rocket,&listSize=72&isPriceRange=false&rating=0&page=1&rocketAll=false&q=",
 			Name:         "쿠팡-로켓배송",
 			URL:          "https://www.coupang.com",
 			LinkPrefix:   "https://www.coupang.com",

@@ -125,7 +125,9 @@ func (s GameArchive) GetNewArrivals() []NewArrival {
 		results = append(results, previousGameArcNewArrival)
 		log.Println("GameArchive: equal result. no change.")
 	} else {
-		var newArrival = NewArrival{time.Now(), searched}
+		now := time.Now()
+		upTime, _ := time.Parse("2006-01-02", now.Format("2006-01-02"))
+		var newArrival = NewArrival{upTime, searched}
 		results = append(results, newArrival)
 		previousGameArcNewArrival = newArrival
 	}

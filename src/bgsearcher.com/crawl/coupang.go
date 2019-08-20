@@ -3,7 +3,6 @@ package crawl
 import (
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -18,17 +17,34 @@ func (s Coupang) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+var prevCookie string
+
 // GetSearchResults is an exported method of Crawler
 func (s Coupang) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
 
-	resp, err := http.Get(info.QueryURL + url.QueryEscape(query))
+	req, err := http.NewRequest("GET", "https://www.coupang.com/np/goldbox", nil)
+	if err != nil {
+		log.Printf("Coupang: Failed to make request")
+		return results
+	}
+
+	req.AddCookie(&http.Cookie{Name: "sid", Value: "a630adde1b5140829e76fb599a1bcbb4596fbbd2"})
+	req.AddCookie(&http.Cookie{Name: "PCID", Value: "227600333351734637228812"})
+	req.AddCookie(&http.Cookie{Name: "overrideAbTestGroup", Value: "%5B%5D"})
+	req.AddCookie(&http.Cookie{Name: "FUN", Value: "{'search':[{'reqUrl':'/search.pang','isValid':true}]}"})
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Coupang: Failed to get page")
 		return results
 	}
 	defer resp.Body.Close()
+
+	prevCookie = resp.Header.Get("Set-Cookie")
+	log.Println(prevCookie)
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
@@ -36,6 +52,7 @@ func (s Coupang) GetSearchResults(query string) []SearchResult {
 		return results
 	}
 
+	log.Println(doc.Text())
 	doc.Find(".search-product").Each(func(i int, s *goquery.Selection) {
 		// each item
 		url, exists := s.Find("a").Eq(0).Attr("href")
