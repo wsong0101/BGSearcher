@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"runtime"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -37,7 +38,9 @@ func main() {
 	runtime.GOMAXPROCS(1)
 
 	cloud.InitializeCloud()
-	// api.UpdateNewArrivals(1800) // every 30 min
+
+	var refreshDuration = 30 * time.Minute
+	go api.UpdateNewArrivals(refreshDuration) // every 30 min
 
 	shopInfos := api.GetShopInfos()
 

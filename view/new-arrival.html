@@ -6,6 +6,9 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+    <div class="alert alert-warning text-center" role="alert">
+            신규 입고 품목은 30분마다 업데이트 됩니다.
+    </div>
     <div v-for="arrival in newArrivals">
         <div class="alert alert-info text-center" role="alert">
                 ${GetTimeText(arrival.UpTime)} - ${arrival.Results[0].Company}

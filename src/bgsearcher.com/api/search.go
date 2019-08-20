@@ -2,6 +2,7 @@ package api
 
 import (
 	"sync"
+	"time"
 
 	"bgsearcher.com/cloud"
 	"bgsearcher.com/crawl"
@@ -150,15 +151,38 @@ func Search(query string) []crawl.SearchResult {
 var newArrivals []crawl.NewArrival
 
 // UpdateNewArrivals runs repeatedly to crawl sites' new arrivals
-func UpdateNewArrivals(period int) {
-	for i := 0; i < len(Crawlers); i++ {
-		var crawler = Crawlers[i]
+func UpdateNewArrivals(period time.Duration) {
+	for {
+		size := len(Crawlers)
+		wg := sync.WaitGroup{}
+		wg.Add(size)
+		ch := make(chan []crawl.NewArrival, size)
 
-		result := crawler.GetNewArrivals()
-		if len(result) <= 0 {
-			continue
+		for i := 0; i < size; i++ {
+			var crawler = Crawlers[i]
+
+			go func(ch chan []crawl.NewArrival, wg *sync.WaitGroup, crawler crawl.Crawler) {
+				defer wg.Done()
+				result := crawler.GetNewArrivals()
+				if len(result) <= 0 {
+					return
+				}
+				ch <- result
+			}(ch, &wg, crawler)
 		}
-		newArrivals = append(newArrivals, result...)
+
+		wg.Wait()
+		close(ch)
+
+		for {
+			if result, success := <-ch; success {
+				newArrivals = append(newArrivals, result...)
+			} else {
+				break
+			}
+		}
+
+		<-time.After(period)
 	}
 }
 
