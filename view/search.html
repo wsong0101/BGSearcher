@@ -20,7 +20,7 @@
                     <a :href="data.Link" target="blank"><h5 class="card-title">${data.Name}</h5></a>
                     <p class="card-text" v-if="data.Name2 != ''">${data.Name2}</p>
                 </div>
-                <div class="card-footer">
+                <div class="card-footer" :class="data.SoldOut ? 'bg-danger' : ''">
                     <p class="card-text" v-if="!data.SoldOut">${data.Price}</p>
                     <p class="card-text" v-if="data.SoldOut">품절</p>
                 </div>
@@ -46,6 +46,10 @@
 
     .bg-info {
         background-color: #B8DAFF !important;
+    }
+
+    .bg-danger {
+        background-color: #F8D7DA !important;
     }
 </style>
 

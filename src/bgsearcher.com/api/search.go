@@ -115,6 +115,15 @@ var Crawlers = []crawl.Crawler{
 			NewArrivalURL: "http://www.weefun.co.kr/board/board.html?code=weefun_board9",
 		},
 	},
+	crawl.Coupang{
+		Info: crawl.ShopInfo{
+			QueryURL:     "https://www.coupang.com/np/search?filterType=rocket%2C&isPriceRange=false&page=1&component=332130&sorter=scoreDesc&listSize=72&q=",
+			Name:         "쿠팡-로켓배송",
+			URL:          "https://www.coupang.com",
+			LinkPrefix:   "https://www.coupang.com",
+			FireStoreDir: "coupang",
+		},
+	},
 }
 
 // Search returns a slice of SearchResult
