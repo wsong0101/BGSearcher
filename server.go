@@ -38,6 +38,7 @@ func main() {
 	runtime.GOMAXPROCS(1)
 
 	cloud.InitializeCloud()
+	api.LoadNewArrivalsFromCloud()
 
 	var refreshDuration = 30 * time.Minute
 	go api.UpdateNewArrivals(refreshDuration) // every 30 min
@@ -88,6 +89,7 @@ func main() {
 	})
 
 	e.File("/favicon.ico", "favicon.ico")
+	e.File("/ror.xml", "ror.xml")
 
 	e.POST("/remove", func(c echo.Context) error {
 		passwd := c.QueryParam("passwd")

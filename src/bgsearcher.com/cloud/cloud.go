@@ -28,6 +28,7 @@ var hitsResult []HitsResult
 
 var bucket *storage.BucketHandle
 var collection *firestore.CollectionRef
+var naCollection *firestore.CollectionRef
 
 // InitializeCloud initialzies gcp client and load filemap
 func InitializeCloud() {
@@ -62,6 +63,7 @@ func InitializeCloud() {
 	}
 
 	collection = storeClient.Collection("history")
+	naCollection = storeClient.Collection("new-arrivals")
 
 	iter := collection.Documents(ctx)
 	for {
@@ -205,4 +207,28 @@ func RemoveHistory(word string, passwd string) string {
 	}
 
 	return "success"
+}
+
+// SaveNewArrivals saves json string data to firestore
+func SaveNewArrivals(data string) {
+	ctx := context.Background()
+	_, err := naCollection.Doc("latest").Set(ctx, map[string]interface{}{
+		"data": data,
+	})
+
+	if err != nil {
+		log.Printf("SaveNewArrivals: Failed to add on document")
+	}
+}
+
+// LoadNewArrivals loades json string data from firestore
+func LoadNewArrivals() string {
+	ctx := context.Background()
+	if result, err := naCollection.Doc("latest").Get(ctx); err == nil {
+		data := result.Data()["data"]
+		if s, ok := data.(string); ok {
+			return s
+		}
+	}
+	return ""
 }

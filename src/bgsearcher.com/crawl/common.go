@@ -5,6 +5,7 @@ import (
 )
 
 var newArrivalsLimit float64 = 20 * 24 // hours
+var timeoutDuration = time.Duration(5 * time.Second)
 
 // SearchResult represents individual game info
 type SearchResult struct {
@@ -38,6 +39,7 @@ type Crawler interface {
 	GetSearchResults(query string) []SearchResult
 	GetNewArrivals() []NewArrival
 	GetShopInfo() ShopInfo
+	UpdatePrevNewArrivals(arrivals []NewArrival)
 }
 
 func isEqualSearchResults(l []SearchResult, r []SearchResult) bool {

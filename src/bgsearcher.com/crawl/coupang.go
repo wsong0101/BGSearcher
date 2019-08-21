@@ -18,6 +18,11 @@ func (s Coupang) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+// UpdatePrevNewArrivals for specific shops
+func (s Coupang) UpdatePrevNewArrivals(arrivals []NewArrival) {
+	return
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s Coupang) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
@@ -25,16 +30,18 @@ func (s Coupang) GetSearchResults(query string) []SearchResult {
 
 	req, err := http.NewRequest("GET", info.QueryURL+url.QueryEscape(query), nil)
 	if err != nil {
-		log.Printf("Coupang: Failed to make request")
+		log.Printf("Coupang: Failed to make request: %s", err)
 		return results
 	}
 
 	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux i686; rv:64.0) Gecko/20100101 Firefox/64.0")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: timeoutDuration,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("Coupang: Failed to get page")
+		log.Printf("Coupang: Failed to get page: %s", err)
 		return results
 	}
 	defer resp.Body.Close()

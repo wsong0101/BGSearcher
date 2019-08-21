@@ -21,12 +21,26 @@ func (s BoardM) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+// UpdatePrevNewArrivals for specific shops
+func (s BoardM) UpdatePrevNewArrivals(arrivals []NewArrival) {
+	return
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s BoardM) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
 
-	resp, err := http.Get(info.QueryURL + url.QueryEscape(query))
+	req, err := http.NewRequest("GET", info.QueryURL+url.QueryEscape(query), nil)
+	if err != nil {
+		log.Printf("BoardM: Failed to make request: %s", err)
+		return results
+	}
+
+	client := &http.Client{
+		Timeout: timeoutDuration,
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("BoardM: Failed to get page")
 		return results
@@ -35,7 +49,7 @@ func (s BoardM) GetSearchResults(query string) []SearchResult {
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Printf("BoardM: Failed to read response")
+		log.Printf("BoardM: Failed to read response: %s", err)
 		return results
 	}
 

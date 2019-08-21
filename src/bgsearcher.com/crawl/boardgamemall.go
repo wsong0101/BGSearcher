@@ -20,14 +20,28 @@ func (s BoardgameMall) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+// UpdatePrevNewArrivals for specific shops
+func (s BoardgameMall) UpdatePrevNewArrivals(arrivals []NewArrival) {
+	return
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s BoardgameMall) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
 
-	resp, err := http.Get(info.QueryURL + url.QueryEscape(query))
+	req, err := http.NewRequest("GET", info.QueryURL+url.QueryEscape(query), nil)
 	if err != nil {
-		log.Printf("BoardgameMall: Failed to get page")
+		log.Printf("BoardgameMall: Failed to make request: %s", err)
+		return results
+	}
+
+	client := &http.Client{
+		Timeout: timeoutDuration,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("BoardgameMall: Failed to get page: %s", err)
 		return results
 	}
 	defer resp.Body.Close()

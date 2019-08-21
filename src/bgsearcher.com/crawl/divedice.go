@@ -21,6 +21,11 @@ func (s DiveDice) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+// UpdatePrevNewArrivals for specific shops
+func (s DiveDice) UpdatePrevNewArrivals(arrivals []NewArrival) {
+	return
+}
+
 // ddResponse is a struct form DiveDice's json search response
 type ddResponse struct {
 	Total    string

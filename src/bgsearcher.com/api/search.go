@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	"log"
 	"sync"
 	"time"
 
@@ -115,15 +117,15 @@ var Crawlers = []crawl.Crawler{
 			NewArrivalURL: "http://www.weefun.co.kr/board/board.html?code=weefun_board9",
 		},
 	},
-	crawl.Coupang{
-		Info: crawl.ShopInfo{
-			QueryURL:     "https://www.coupang.com/np/search?component=332130&eventCategory=SRP&sorter=scoreDesc&filterType=rocket,&listSize=72&isPriceRange=false&rating=0&page=1&rocketAll=false&q=",
-			Name:         "쿠팡-로켓배송",
-			URL:          "https://www.coupang.com",
-			LinkPrefix:   "https://www.coupang.com",
-			FireStoreDir: "coupang",
-		},
-	},
+	// crawl.Coupang{
+	// 	Info: crawl.ShopInfo{
+	// 		QueryURL:     "https://www.coupang.com/np/search?component=332130&eventCategory=SRP&sorter=scoreDesc&filterType=rocket,&listSize=72&isPriceRange=false&rating=0&page=1&rocketAll=false&q=",
+	// 		Name:         "쿠팡-로켓배송",
+	// 		URL:          "https://www.coupang.com",
+	// 		LinkPrefix:   "https://www.coupang.com",
+	// 		FireStoreDir: "coupang",
+	// 	},
+	// },
 }
 
 // Search returns a slice of SearchResult
@@ -188,6 +190,7 @@ func UpdateNewArrivals(period time.Duration) {
 			if result, success := <-ch; success {
 				newArrivals = append(newArrivals, result...)
 			} else {
+				SaveNewArrivalsToCloud()
 				break
 			}
 		}
@@ -209,4 +212,27 @@ func GetShopInfos() []crawl.ShopInfo {
 		shopInfos = append(shopInfos, crawler.GetShopInfo())
 	}
 	return shopInfos
+}
+
+// LoadNewArrivalsFromCloud loads new arrivals from cloud
+func LoadNewArrivalsFromCloud() {
+	data := cloud.LoadNewArrivals()
+	err := json.Unmarshal([]byte(data), &newArrivals)
+	if err != nil {
+		log.Printf("Failed to load new arrivals: %s", err)
+	}
+
+	for i := 0; i < len(Crawlers); i++ {
+		crawler := Crawlers[i]
+		crawler.UpdatePrevNewArrivals(newArrivals)
+	}
+}
+
+// SaveNewArrivalsToCloud saves new arrivals to cloud
+func SaveNewArrivalsToCloud() {
+	if data, err := json.Marshal(&newArrivals); err == nil {
+		cloud.SaveNewArrivals(string(data))
+	} else {
+		log.Printf("Failed to load save arrivals: %s", err)
+	}
 }

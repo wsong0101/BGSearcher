@@ -18,14 +18,28 @@ func (s CardCastle) GetShopInfo() ShopInfo {
 	return s.Info
 }
 
+// UpdatePrevNewArrivals for specific shops
+func (s CardCastle) UpdatePrevNewArrivals(arrivals []NewArrival) {
+	return
+}
+
 // GetSearchResults is an exported method of Crawler
 func (s CardCastle) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
 
-	resp, err := http.Get(info.QueryURL + url.QueryEscape(query))
+	req, err := http.NewRequest("GET", info.QueryURL+url.QueryEscape(query), nil)
 	if err != nil {
-		log.Printf("CardCastle: Failed to get page")
+		log.Printf("CardCastle: Failed to make request: %s", err)
+		return results
+	}
+
+	client := &http.Client{
+		Timeout: timeoutDuration,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("CardCastle: Failed to get page: %s", err)
 		return results
 	}
 	defer resp.Body.Close()
