@@ -55,20 +55,20 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
-            <form class="form-inline my-2 my-lg-0" action="/search">
+
+            <form class="form-inline my-2 my-lg-0 d-lg-none" action="/search">
                 <div class="input-group">
-                        <div class="input-group-prepend">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
-                            <div class="dropdown-menu">
-                                <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
-                            </div>
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
                         </div>
-                        <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
-                        </div>
-                    </div>                   
+                    </div>
+                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
             </form>
 
             <div class="collapse navbar-collapse" id="navbarToggler">
@@ -84,6 +84,21 @@
                     </li>
                 </ul>
             </div>
+
+            <form class="form-inline my-2 my-lg-0 d-none d-lg-block" action="/search">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                        </div>
+                    </div>
+                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
+            </form>            
         </nav>
         
         {{ if eq .Content "new-arrivals" }}
