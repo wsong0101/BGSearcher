@@ -6,8 +6,15 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    <div class="alert alert-danger text-center" role="alert" v-if="emptyResult">
-        검색 결과가 없습니다.
+    <div v-if="noQuery">
+        <form class="form-inline my-2 my-lg-0" action="/search">
+            <div class="input-group">
+                <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                </div>
+            </div>                   
+        </form>
     </div>
     <div class="row">
         <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="data in results">
@@ -26,6 +33,9 @@
                 </div>
             </div>   
         </div>
+    </div>
+    <div class="alert alert-danger text-center" role="alert" v-if="emptyResult">
+        검색 결과가 없습니다.
     </div>
 </div>
 
@@ -63,6 +73,7 @@
             hits: [],
             emptyResult: false,
             searching: false,
+            noQuery: false,
         },
         mounted: function() {
             var url = new URL(decodeURIComponent(location.href));
@@ -71,7 +82,10 @@
                 this.query = ""
             }
             if (this.query != "") {
+                this.noQuery = false
                 this.Search()
+            } else {
+                this.noQuery = true
             }
         },
         methods: {
@@ -128,10 +142,6 @@
                 .catch(function (error) {
                     console.log(error)
                 })
-            },
-            SearchHits: function(query) {
-                this.query = query
-                this.Search()
             }
         }
     })
