@@ -7,17 +7,18 @@
         </div>
     </div>
     <div v-if="noQuery">
-        <form class="form-inline my-2 my-lg-0" action="/search">
-            <div class="input-group">
-                <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
-                </div>
-            </div>                   
-        </form>
+        <div class="alert alert-warning text-center" role="alert">
+            아래 기재된 쇼핑몰의 검색 결과를 한 번에 볼 수 있습니다.
+        </div>
+        <ul class="list-group my-2">
+            <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
+            {{range .ShopInfos}}
+                <li class="list-group-item list-group-item-action"><a href="{{.URL}}" target="blank">{{.Name}}</a></li>
+            {{end}}
+        </ul>
     </div>
     <div class="row">
-        <div class="col-sm-6 col-md-4 col-xl-3 d-flex" v-for="data in results">
+        <div class="col-6 col-sm-6 col-md-4 col-xl-3 d-flex" v-for="data in results">
             <div class="card text-center">
                 <h6 class="card-header bg-info">${data.Company}</h6>
                 <div class="card-img-top">

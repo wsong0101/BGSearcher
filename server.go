@@ -51,16 +51,18 @@ func main() {
 	}
 	e.Renderer = renderer
 
-	mainData := PageData{
-		Content:   "main",
-		ShopInfos: shopInfos,
-	}
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", &mainData)
+		return c.Render(http.StatusOK, "base.html", &PageData{
+			Content:   "main",
+			ShopInfos: shopInfos,
+		})
 	})
 
 	e.GET("/search", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", PageData{"search", nil})
+		return c.Render(http.StatusOK, "base.html", &PageData{
+			Content:   "search",
+			ShopInfos: shopInfos,
+		})
 	})
 
 	e.GET("/new-arrivals", func(c echo.Context) error {
