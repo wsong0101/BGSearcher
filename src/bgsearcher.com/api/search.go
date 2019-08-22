@@ -128,6 +128,16 @@ var Crawlers = []crawl.Crawler{
 		},
 		CacheMap: make(map[string]crawl.SearchCache),
 	},
+	crawl.Ez2Play{
+		Info: crawl.ShopInfo{
+			QueryURL:     "http://www.ez2playgames.com/front/php/search/search.php?keyword=",
+			Name:         "이지투플레이",
+			URL:          "http://www.ez2playgames.com",
+			LinkPrefix:   "http://www.ez2playgames.com",
+			FireStoreDir: "ez2play",
+		},
+		CacheMap: make(map[string]crawl.SearchCache),
+	},
 	// crawl.Coupang{
 	// 	Info: crawl.ShopInfo{
 	// 		QueryURL:     "https://www.coupang.com/np/search?component=332130&eventCategory=SRP&sorter=scoreDesc&filterType=rocket,&listSize=72&isPriceRange=false&rating=0&page=1&rocketAll=false&q=",
