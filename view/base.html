@@ -50,11 +50,27 @@
 <body>
     <div class="container">
         <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-white" id="nav-app">
+            <a class="navbar-brand d-none d-lg-block" href="/"><h3>BGSearcher!</h3></a>
+            
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="/"><h3>BGSearcher!</h3></a>
-            
+
+            <form class="form-inline my-2 my-lg-0 d-lg-none" action="/search">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                        </div>
+                    </div>
+                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
+            </form>
+
             <div class="collapse navbar-collapse" id="navbarToggler">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                     <li class="nav-item" :class="current=='/' ? 'active' : ''">
@@ -67,27 +83,28 @@
                         <a class="nav-link" href="/search">검색</a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0" action="/search">
-                    <div class="input-group">
-                            <div class="input-group-prepend">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
-                                <div class="dropdown-menu">
-                                    <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
-                                </div>
-                            </div>
-                            <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
-                            </div>
-                        </div>                   
-                </form>
             </div>
+
+            <form class="form-inline my-2 my-lg-0 d-none d-lg-block" action="/search">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                        </div>
+                    </div>
+                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
+            </form>            
         </nav>
         
         {{ if eq .Content "new-arrivals" }}
             {{ template "new-arrivals" }}
         {{ else if eq .Content "search" }}
-            {{ template "search" }}
+            {{ template "search" . }}
         {{ else if eq .Content "admin" }}
             {{ template "admin" }}
         {{ else }}
