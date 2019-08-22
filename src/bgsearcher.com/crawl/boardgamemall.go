@@ -73,6 +73,7 @@ func (s BoardgameMall) GetSearchResults(query string) []SearchResult {
 		name2 := ""
 
 		price := s.Find(".item_money_box").Find(".item_price").Text()
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})

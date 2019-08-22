@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"bgsearcher.com/util"
@@ -77,6 +78,7 @@ func (s Weefun) GetSearchResults(query string) []SearchResult {
 		name2 := util.ToUTF8(s.Find(".subname").Text())
 
 		price := util.ToUTF8(s.Find(".price").Text())
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})

@@ -24,16 +24,7 @@ func (s BMarket) GetShopInfo() ShopInfo {
 
 // UpdatePrevNewArrivals for specific shops
 func (s BMarket) UpdatePrevNewArrivals(arrivals []NewArrival) {
-	for i := 0; i < len(arrivals); i++ {
-		result := arrivals[i].Results
-		if result == nil || len(result) <= 0 {
-			return
-		}
-		if result[0].Company == s.Info.Name {
-			previousBmarketNewArrival = arrivals[i]
-			return
-		}
-	}
+	return
 }
 
 // GetSearchResults is an exported method of Crawler
@@ -103,6 +94,7 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 			}
 			r, _ := regexp.Compile("=([0-9]*,*[0-9]* 원)")
 			price = r.FindStringSubmatch(priceURL)[1]
+			price = strings.TrimSpace(price)
 		}
 
 		results = append(results, SearchResult{
@@ -112,13 +104,10 @@ func (s BMarket) GetSearchResults(query string) []SearchResult {
 	return results
 }
 
-var previousBmarketNewArrival NewArrival
-
 // GetNewArrivals is an exported method of Crawler by BMarket
 func (s BMarket) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
-	var searched []SearchResult
 
 	resp, err := http.Get(info.NewArrivalURL)
 	if err != nil {
@@ -133,42 +122,70 @@ func (s BMarket) GetNewArrivals() []NewArrival {
 		return results
 	}
 
-	doc.Find("#contents").Find("tr").Each(func(i int, s *goquery.Selection) {
-		aTag := s.Children().Children().Eq(1).Children().Children().Children().Children()
-		url, exists := aTag.Attr("href")
-		if !exists {
+	doc.Find("tr").Each(func(i int, s *goquery.Selection) {
+		upTime, err := time.Parse("2006-01-02", s.Children().Eq(5).Text())
+		if err != nil {
 			return
 		}
-		url = info.LinkPrefix + strings.Split(url, "./")[1]
-
-		img, exists := aTag.Children().Attr("src")
-		if !exists {
-			return
-		}
-		img = info.LinkPrefix + strings.Split(img, "./")[1]
-
-		isSoldOut := false
-		name := util.ToUTF8(s.Siblings().Find(".game_title").Text())
-		price := util.ToUTF8(s.Siblings().Find(".game_price").Text())
-		if price == "품절" {
-			price = ""
-			isSoldOut = true
-		}
-
-		searched = append(searched, SearchResult{
-			info.Name, url, img, name, "", price, isSoldOut})
-	})
-
-	if isEqualSearchResults(previousBmarketNewArrival.Results, searched) {
-		results = append(results, previousBmarketNewArrival)
-		log.Println("BMarket: equal result. no change.")
-	} else {
 		now := time.Now()
-		upTime, _ := time.Parse("2006-01-02", now.Format("2006-01-02"))
-		var newArrival = NewArrival{upTime, searched}
-		results = append(results, newArrival)
-		previousBmarketNewArrival = newArrival
-	}
+		diff := now.Sub(upTime)
+		if diff.Hours() > newArrivalsLimit {
+			return
+		}
+
+		link, exists := s.Children().Eq(3).Children().Attr("href")
+		if !exists {
+			return
+		}
+		link = "http://boardlife.co.kr/" + strings.Split(link, "./")[1]
+
+		resp2, err2 := http.Get(link)
+		if err2 != nil {
+			log.Printf("BMarket: Failed to get new arrival detail page")
+			return
+		}
+		defer resp2.Body.Close()
+
+		doc2, err2 := goquery.NewDocumentFromReader(resp2.Body)
+		if err2 != nil {
+			log.Printf("BMarket: Failed to read arrival detail response")
+			return
+		}
+
+		var searched []SearchResult
+		doc2.Find("#board_contents").Find("tbody").Each(func(i int, ss *goquery.Selection) {
+			aTag := ss.Children().Eq(0).Children().Children().Children().Children().Children().Children()
+			url, exists := aTag.Attr("href")
+			if !exists {
+				return
+			}
+
+			img, exists := aTag.Children().Attr("src")
+			if !exists {
+				return
+			}
+			img = "http://boardlife.co.kr/" + strings.Split(img, "./")[1]
+
+			name := util.ToUTF8(ss.Find("strong").Eq(0).Text())
+
+			price := util.ToUTF8(ss.Find("strong").Eq(1).Text())
+			price = strings.TrimSpace(price)
+			if !strings.Contains(price, "원") {
+				price += "원"
+			}
+
+			isSoldOut := false
+			if strings.Contains(price, "품절") {
+				isSoldOut = true
+				price = ""
+			}
+
+			searched = append(searched, SearchResult{
+				info.Name, url, img, name, "", price, isSoldOut})
+		})
+
+		results = append(results, NewArrival{upTime, searched})
+	})
 
 	return results
 }

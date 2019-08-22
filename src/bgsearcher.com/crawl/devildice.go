@@ -77,6 +77,7 @@ func (s DevilDice) GetSearchResults(query string) []SearchResult {
 		name2 := ""
 
 		price := s.Find(".price").Find(".cost").Text()
+		price = strings.TrimSpace(price)
 
 		if price == "품절" {
 			price = ""
@@ -147,6 +148,7 @@ func (s DevilDice) GetNewArrivals() []NewArrival {
 		isSoldOut := false
 		name := s.Find(".txt").Find("strong").Text()
 		price := s.Find(".cost").Text()
+		price = strings.TrimSpace(price)
 		if price == "품절" {
 			price = ""
 			isSoldOut = true

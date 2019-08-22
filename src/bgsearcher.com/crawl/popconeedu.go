@@ -72,7 +72,8 @@ func (s PopconeEdu) GetSearchResults(query string) []SearchResult {
 
 		name2 := ""
 
-		price := s.Find(".c_price").Children().Text() + "원"
+		price := s.Find(".c_price").Children().Text()
+		price = strings.TrimSpace(price) + "원"
 
 		var soldOut = false
 		var states = ""

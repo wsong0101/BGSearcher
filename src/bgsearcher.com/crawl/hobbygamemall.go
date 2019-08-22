@@ -83,6 +83,7 @@ func (s HobbyGameMall) GetSearchResults(query string) []SearchResult {
 		name2 := ""
 
 		price := util.ToUTF8(s.Find("b").Text())
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})

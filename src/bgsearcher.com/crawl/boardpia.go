@@ -81,6 +81,7 @@ func (s Boardpia) GetSearchResults(query string) []SearchResult {
 			soldOut = true
 			price = ""
 		}
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, util.ToUTF8(name1), util.ToUTF8(name2), util.ToUTF8(price), soldOut})
@@ -159,6 +160,7 @@ func (s Boardpia) GetNewArrivals() []NewArrival {
 
 			price := ss.Find(".mall_product").Find("b").Eq(1).Text()
 			price = util.ToUTF8(price)
+			price = strings.TrimSpace(price)
 
 			isSoldOut := false
 			if price == "품절" {

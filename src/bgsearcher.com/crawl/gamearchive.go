@@ -88,6 +88,7 @@ func (s GameArchive) GetSearchResults(query string) []SearchResult {
 		name2 := s.Find(".txt").Find("em").Text()
 
 		price := s.Find(".cost").Find("strong").Text() + "원"
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})
@@ -139,6 +140,7 @@ func (s GameArchive) GetNewArrivals() []NewArrival {
 		name := s.Find(".txt").Find("strong").Text()
 
 		price := s.Find(".cost").Find("strong").Text() + "원"
+		price = strings.TrimSpace(price)
 
 		searched = append(searched, SearchResult{
 			info.Name, url, img, name, "", price, soldOut})

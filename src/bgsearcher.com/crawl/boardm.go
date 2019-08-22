@@ -83,6 +83,7 @@ func (s BoardM) GetSearchResults(query string) []SearchResult {
 			price = s.Find(".cost").Find("strong").Text()
 		}
 		if price != "" {
+			price = strings.TrimSpace(price)
 			price += "원"
 		}
 
@@ -174,6 +175,7 @@ func (s BoardM) GetNewArrivals() []NewArrival {
 				}
 			}
 
+			price = strings.TrimSpace(price)
 			searched = append(searched, SearchResult{
 				info.Name, url, img, name, "", price, isSoldOut})
 		})

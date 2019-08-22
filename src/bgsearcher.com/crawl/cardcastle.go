@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -75,6 +76,7 @@ func (s CardCastle) GetSearchResults(query string) []SearchResult {
 		name2 := ""
 
 		price := s.Find("strong").Text()
+		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})

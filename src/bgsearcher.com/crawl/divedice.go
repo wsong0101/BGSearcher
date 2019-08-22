@@ -87,6 +87,7 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 		name2 := ""
 
 		price := s.Find(".price").Text()
+		price = strings.TrimSpace(price)
 
 		var soldOut = false
 		discount := s.Find(".dc").Text()

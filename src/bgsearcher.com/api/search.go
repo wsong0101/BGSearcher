@@ -19,7 +19,7 @@ var Crawlers = []crawl.Crawler{
 			URL:           "http://shopping.boardlife.co.kr",
 			LinkPrefix:    "http://shopping.boardlife.co.kr/",
 			FireStoreDir:  "bmarket",
-			NewArrivalURL: "http://shopping.boardlife.co.kr/html_file.php?file=new_instock.html",
+			NewArrivalURL: "http://boardlife.co.kr/bbs_list.php?tb=bmarket_new&id=&pg=1",
 		},
 	},
 	crawl.BoardgameMall{
