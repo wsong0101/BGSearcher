@@ -1,2 +1,4 @@
 pkg/*
 __debug_bin
+src/github.com/labstack/echo
+src/golang.org/x/sys

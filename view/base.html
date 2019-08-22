@@ -56,7 +56,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <form class="form-inline my-2 my-lg-0 d-lg-none" action="/search">
+            <form class="form-inline my-2 my-lg-0 d-lg-none" id="mobile-search" action="/search">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
@@ -64,7 +64,7 @@
                             <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
                         </div>
                     </div>
-                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
                     </div>
@@ -93,7 +93,7 @@
                             <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
                         </div>
                     </div>
-                    <input type="search" name="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
                     </div>
@@ -123,12 +123,15 @@
             data: {
                 hits: [],
                 current: '',
+                query: '',
             },
             mounted: function() {
                 this.GetHits()
                 
                 var url = new URL(decodeURIComponent(location.href));
                 this.current = url.pathname
+
+                this.query = url.searchParams.get("query");
             },
             methods: {
                 GetHits: function() {
@@ -147,6 +150,20 @@
                 }
             }
         })
+    </script>
+
+    <script>
+        var prevScrollpos = window.pageYOffset;
+        window.onscroll = function() {
+            var currentScrollPos = window.pageYOffset;
+            if (prevScrollpos > currentScrollPos + 55) {
+                document.getElementById("mobile-search").style.display = "block";
+                prevScrollpos = currentScrollPos;
+            } else if (prevScrollpos < currentScrollPos - 55) {
+                document.getElementById("mobile-search").style.display = "none";
+                prevScrollpos = currentScrollPos;
+            }
+        }
     </script>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
