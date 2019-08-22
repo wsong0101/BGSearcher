@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"bgsearcher.com/cloud"
 	"github.com/PuerkitoBio/goquery"
@@ -12,7 +13,8 @@ import (
 
 // BoardgameMall is a struct for shop
 type BoardgameMall struct {
-	Info ShopInfo
+	Info     ShopInfo
+	CacheMap map[string]SearchCache
 }
 
 // GetShopInfo returns the shop's info
@@ -29,6 +31,13 @@ func (s BoardgameMall) UpdatePrevNewArrivals(arrivals []NewArrival) {
 func (s BoardgameMall) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
+
+	if val, exists := s.CacheMap[query]; exists {
+		now := time.Now()
+		if now.Sub(val.SearchedTime) <= searchCacheDuration {
+			return val.Results
+		}
+	}
 
 	req, err := http.NewRequest("GET", info.QueryURL+url.QueryEscape(query), nil)
 	if err != nil {
@@ -78,6 +87,8 @@ func (s BoardgameMall) GetSearchResults(query string) []SearchResult {
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})
 	})
+
+	s.CacheMap[query] = SearchCache{time.Now(), results}
 
 	return results
 }

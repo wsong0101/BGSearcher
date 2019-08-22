@@ -21,6 +21,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "bmarket",
 			NewArrivalURL: "http://boardlife.co.kr/bbs_list.php?tb=bmarket_new&id=&pg=1",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.BoardgameMall{
 		Info: crawl.ShopInfo{
@@ -30,6 +31,7 @@ var Crawlers = []crawl.Crawler{
 			LinkPrefix:   "http://boardgamemall.co.kr",
 			FireStoreDir: "boardgamemall",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.BoardM{
 		Info: crawl.ShopInfo{
@@ -40,6 +42,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "boardm",
 			NewArrivalURL: "http://www.boardm.co.kr/goods/goods_list.php?cateCd=024",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.Boardpia{
 		Info: crawl.ShopInfo{
@@ -50,6 +53,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "boardpia",
 			NewArrivalURL: "http://boardpia.co.kr/mall/mall_notice.html",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.CardCastle{
 		Info: crawl.ShopInfo{
@@ -59,6 +63,7 @@ var Crawlers = []crawl.Crawler{
 			LinkPrefix:   "http://www.cardcastle.co.kr",
 			FireStoreDir: "cardcastle",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.DevilDice{
 		Info: crawl.ShopInfo{
@@ -69,6 +74,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "devildice",
 			NewArrivalURL: "http://devildice.co.kr/goods/goods_main.php?sno=3",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.DiveDice{
 		Info: crawl.ShopInfo{
@@ -78,6 +84,7 @@ var Crawlers = []crawl.Crawler{
 			LinkPrefix:   "https://www.divedice.com/site/game/",
 			FireStoreDir: "divedice",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.GameArchive{
 		Info: crawl.ShopInfo{
@@ -88,6 +95,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "gamearchive",
 			NewArrivalURL: "http://gamearc.co.kr/goods/goods_main.php?sno=8",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.HobbyGameMall{
 		Info: crawl.ShopInfo{
@@ -97,6 +105,7 @@ var Crawlers = []crawl.Crawler{
 			LinkPrefix:   "http://www.hobbygamemall.com/shop",
 			FireStoreDir: "hobbygame",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.PopconeEdu{
 		Info: crawl.ShopInfo{
@@ -106,6 +115,7 @@ var Crawlers = []crawl.Crawler{
 			LinkPrefix:   "http://www.popcone.co.kr/shop",
 			FireStoreDir: "popconeedu",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	crawl.Weefun{
 		Info: crawl.ShopInfo{
@@ -116,6 +126,7 @@ var Crawlers = []crawl.Crawler{
 			FireStoreDir:  "weefun",
 			NewArrivalURL: "http://www.weefun.co.kr/board/board.html?code=weefun_board9",
 		},
+		CacheMap: make(map[string]crawl.SearchCache),
 	},
 	// crawl.Coupang{
 	// 	Info: crawl.ShopInfo{

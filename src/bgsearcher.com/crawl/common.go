@@ -6,6 +6,7 @@ import (
 
 var newArrivalsLimit float64 = 20 * 24 // hours
 var timeoutDuration = time.Duration(5 * time.Second)
+var searchCacheDuration = time.Duration(30 * time.Minute)
 
 // SearchResult represents individual game info
 type SearchResult struct {
@@ -16,6 +17,12 @@ type SearchResult struct {
 	Name2   string
 	Price   string
 	SoldOut bool
+}
+
+// SearchCache is struct to save searchresults
+type SearchCache struct {
+	SearchedTime time.Time
+	Results      []SearchResult
 }
 
 // NewArrival represents arrived games at the time

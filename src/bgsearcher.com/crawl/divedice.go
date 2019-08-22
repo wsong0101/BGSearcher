@@ -7,13 +7,15 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 // DiveDice is a struct for shop
 type DiveDice struct {
-	Info ShopInfo
+	Info     ShopInfo
+	CacheMap map[string]SearchCache
 }
 
 // GetShopInfo returns the shop's info
@@ -41,6 +43,13 @@ type ddResponse struct {
 func (s DiveDice) GetSearchResults(query string) []SearchResult {
 	var info = &(s.Info)
 	var results []SearchResult
+
+	if val, exists := s.CacheMap[query]; exists {
+		now := time.Now()
+		if now.Sub(val.SearchedTime) <= searchCacheDuration {
+			return val.Results
+		}
+	}
 
 	resp, err := http.PostForm(info.QueryURL, url.Values{
 		"top_name": {query},
@@ -98,6 +107,8 @@ func (s DiveDice) GetSearchResults(query string) []SearchResult {
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})
 	})
+
+	s.CacheMap[query] = SearchCache{time.Now(), results}
 
 	return results
 }
