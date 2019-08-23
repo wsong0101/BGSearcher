@@ -182,6 +182,8 @@ func (s BoardM) GetNewArrivals() []NewArrival {
 				price = ss.Find(".cost").Find("strong").Text()
 				if price == "" {
 					isSoldOut = true
+				} else {
+					price += "원"
 				}
 			}
 
