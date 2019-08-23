@@ -179,7 +179,7 @@ func (s BoardM) GetNewArrivals() []NewArrival {
 			isSoldOut := false
 			price := ss.Find(".sale").Text()
 			if price == "" {
-				price = ss.Find(".cost").Text()
+				price = ss.Find(".cost").Find("strong").Text()
 				if price == "" {
 					isSoldOut = true
 				}
