@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -87,12 +88,41 @@ func (s CardCastle) GetSearchResults(query string) []SearchResult {
 		price := s.Find("strong").Text()
 		price = strings.TrimSpace(price)
 
+		// CardCastle doesn't show discout price on search result..
+		regStr := "product_no=([0-9]*)&"
+		if match, _ := regexp.MatchString(regStr, url); match {
+			r, _ := regexp.Compile(regStr)
+			productNo := r.FindStringSubmatch(url)[1]
+
+			req2, err2 := http.NewRequest("GET", "http://cardcastle.co.kr/product/image_zoom.html?product_no="+productNo, nil)
+			if err2 != nil {
+				log.Printf("CardCastle: Failed to make detail request: %s", err2)
+				return
+			}
+			resp2, err2 := client.Do(req2)
+			if err2 != nil {
+				log.Printf("CardCastle: Failed to get detail page: %s", err2)
+				return
+			}
+			defer resp2.Body.Close()
+
+			doc2, err2 := goquery.NewDocumentFromReader(resp2.Body)
+			if err2 != nil {
+				log.Printf("CardCastle: Failed to read detail response")
+				return
+			}
+			salePrice := doc2.Find("#span_product_price_sale").Text()
+			if salePrice != "" {
+				price = strings.TrimSpace(strings.Split(salePrice, " ")[0])
+			}
+		}
+
 		results = append(results, SearchResult{
 			info.Name, url, img, name1, name2, price, soldOut})
 	})
-	
+
 	s.CacheMap[query] = SearchCache{time.Now(), results}
-	
+
 	return results
 }
 
