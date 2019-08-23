@@ -30,7 +30,9 @@
                 </div>
                 <div class="card-footer" :class="data.SoldOut ? 'bg-danger' : ''">
                     <p class="card-text" v-if="!data.SoldOut">${data.Price}</p>
-                    <p class="card-text" v-if="data.SoldOut">품절</p>
+                    <p class="card-text" v-if="data.SoldOut">
+                        <small v-if="data.Price != ''">${data.Price}</small><br v-if="data.Price != ''">품절
+                    </p>
                 </div>
             </div>   
         </div>

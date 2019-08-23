@@ -75,24 +75,27 @@ func (s Boardpia) GetSearchResults(query string) []SearchResult {
 		}
 
 		name1 := s.Find("font.mall_product").Eq(1).Text()
+		name1 = util.ToUTF8(name1)
 		name1 = strings.Split(name1, "\n")[0]
 
 		name2 := s.Find("font.mall_product").Eq(0).Text()
 		if name2 == "" {
 			return
 		}
+		name2 = util.ToUTF8(name2)
 
 		price := s.Find("font.mall_product").Eq(1).Find("b").Text()
+		price = util.ToUTF8(price)
 
 		var soldOut = false
-		if price == util.ToEUCKR("품절") {
+		if strings.Contains(price, "품절") {
 			soldOut = true
 			price = ""
 		}
 		price = strings.TrimSpace(price)
 
 		results = append(results, SearchResult{
-			info.Name, url, img, util.ToUTF8(name1), util.ToUTF8(name2), util.ToUTF8(price), soldOut})
+			info.Name, url, img, name1, name2, price, soldOut})
 	})
 
 	s.CacheMap[query] = SearchCache{time.Now(), results}

@@ -28,7 +28,9 @@
                     <div class="card-footer" :class="data.SoldOut ? 'bg-danger' : ''">
                         <a :href="GetSearchLink(data.Name)" class="btn btn-info float-right">검색</a>
                         <p class="card-text py-2" v-if="!data.SoldOut">${data.Price}</p>
-                        <p class="card-text py-2" v-if="data.SoldOut">품절</p>
+                        <p class="card-text py-2" v-if="data.SoldOut">
+                            <small v-if="data.Price != ''">${data.Price}</small><br v-if="data.Price != ''">품절
+                        </p>
                     </div>
                 </div>   
             </div>
