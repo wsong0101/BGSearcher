@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="보드게임 통합 검색 사이트">
+    <meta name="keywords" content="보드게임,쇼핑몰,검색">
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-117676505-3"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-117676505-3');
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3544251307929125",
+        enable_page_level_ads: true
+    });
+    </script>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <title>BGSearcher!</title>
+
+    <style>
+        .col-sm-4 {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        .row {
+            margin: 0px;
+            padding-inline-start: 0px;
+            list-style-type:none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-white" id="nav-app">
+            <a class="navbar-brand d-none d-lg-block" href="/"><h3>BGSearcher!</h3></a>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <form class="form-inline my-2 my-lg-0 d-lg-none" id="mobile-search" action="/search">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                        </div>
+                    </div>
+                    <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
+            </form>
+
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item" :class="current=='/' ? 'active' : ''">
+                        <a class="nav-link" href="/">홈</a>
+                    </li>
+                    <li class="nav-item" :class="current=='/new-arrivals' ? 'active' : ''">
+                        <a class="nav-link" href="/new-arrivals">신규 입고</a>
+                    </li>
+                    <li class="nav-item" :class="current=='/search' ? 'active' : ''">
+                        <a class="nav-link" href="/search">검색</a>
+                    </li>
+                </ul>
+            </div>
+
+            <form class="form-inline my-2 my-lg-0 d-none d-lg-block" action="/search">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <div class="dropdown-menu">
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                        </div>
+                    </div>
+                    <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">검색</button>
+                    </div>
+                </div>                   
+            </form>            
+        </nav>
+        
+        {{ if eq .Content "new-arrivals" }}
+            {{ template "new-arrivals" }}
+        {{ else if eq .Content "search" }}
+            {{ template "search" . }}
+        {{ else if eq .Content "admin" }}
+            {{ template "admin" }}
+        {{ else }}
+            {{ template "main" . }}
+        {{ end }}
+
+        <div class="alert alert-dark text-center" role="alert">
+                Copyright ⓒ wsong<span class="text-muted">(wsong0101@gmail.com)</span> All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            delimiters: ['${', '}'],
+            el: '#nav-app',
+            data: {
+                hits: [],
+                current: '',
+                query: '',
+            },
+            mounted: function() {
+                this.GetHits()
+                
+                var url = new URL(decodeURIComponent(location.href));
+                this.current = url.pathname
+
+                this.query = url.searchParams.get("query");
+            },
+            methods: {
+                GetHits: function() {
+                    var self = this
+                    axios.post("/hits", null, {})
+                    .then(function (resp) {
+                        self.hits = resp.data
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    })
+                    
+                },
+                GetSearchLink: function(query) {
+                    return "/search?query=" + encodeURI(query)
+                }
+            }
+        })
+    </script>
+
+    <script>
+        var prevScrollpos = window.pageYOffset;
+        window.onscroll = function() {
+            var currentScrollPos = window.pageYOffset;
+            if (prevScrollpos > currentScrollPos + 55) {
+                document.getElementById("mobile-search").style.display = "block";
+                prevScrollpos = currentScrollPos;
+            } else if (prevScrollpos < currentScrollPos - 55) {
+                document.getElementById("mobile-search").style.display = "none";
+                prevScrollpos = currentScrollPos;
+            }
+        }
+    </script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
