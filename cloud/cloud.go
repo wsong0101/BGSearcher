@@ -5,7 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sort"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/storage"
@@ -16,15 +16,7 @@ const bucketName = "bgsearcher"
 const projectID = "sublime-etching-249504"
 const prefix = "https://storage.cloud.google.com/" + bucketName + "/"
 
-// HitsResult represents each result of GetHits
-type HitsResult struct {
-	Query string
-	Hits  int64
-}
-
 var fileMap map[string]bool
-var hitsMap map[string]int64
-var hitsResult []HitsResult
 
 var bucket *storage.BucketHandle
 var collection *firestore.CollectionRef
@@ -54,38 +46,14 @@ func InitializeCloud() {
 		fileMap[attrs.Name] = true
 	}
 
-	// load query hits
-	hitsMap = make(map[string]int64)
 	storeClient, err := firestore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("Failed to create firestore client: %v", err)
 		return
 	}
 
-	collection = storeClient.Collection("history")
+	collection = storeClient.Collection("query")
 	naCollection = storeClient.Collection("new-arrivals")
-
-	iter := collection.Documents(ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatalf("Failed to get document from collection: %v", err)
-			return
-		}
-		var query = ""
-		var hits int64
-		if doc.Data()["query"] != nil {
-			query = doc.Data()["query"].(string)
-		}
-		if doc.Data()["hits"] != nil {
-			hits = doc.Data()["hits"].(int64)
-		}
-		hitsMap[query] = hits
-		updateHitsResult(query)
-	}
 }
 
 // GetURLFromCloud returns clound url, upload if no exist
@@ -116,99 +84,6 @@ func GetURLFromCloud(path string, origin string) string {
 	return prefix + path
 }
 
-// IncreaseHitsCount increases hits count on firestore and cache
-func IncreaseHitsCount(query string) {
-	if val, exists := hitsMap[query]; exists {
-		hitsMap[query] = val + 1
-		updateHitsResult(query)
-
-		go func(query string, hits int64) {
-			ctx := context.Background()
-			_, err := collection.Doc(query).Set(ctx, map[string]interface{}{
-				"hits": hits,
-			}, firestore.MergeAll)
-			if err != nil {
-				log.Printf("Failed to update document: %s, %d", query, hits)
-			}
-		}(query, val+1)
-
-		return
-	}
-
-	// new query!
-	go func(query string) {
-		hitsMap[query] = 1
-		updateHitsResult(query)
-
-		ctx := context.Background()
-		_, err := collection.Doc(query).Set(ctx, map[string]interface{}{
-			"query": query,
-			"hits":  1,
-		})
-
-		if err != nil {
-			log.Printf("Failed to add on document: %s", query)
-		}
-	}(query)
-}
-
-// GetHits returns JSON hits map
-func GetHits() []HitsResult {
-	return hitsResult
-}
-
-func updateHitsResult(query string) {
-	hits, exists := hitsMap[query]
-	if !exists {
-		return
-	}
-
-	found := false
-	for i := range hitsResult {
-		if hitsResult[i].Query == query {
-			hitsResult[i].Hits = hits
-			found = true
-		}
-	}
-	if !found {
-		hitsResult = append(hitsResult, HitsResult{
-			Query: query,
-			Hits:  hits,
-		})
-	}
-
-	sort.Slice(hitsResult, func(i, j int) bool {
-		return hitsResult[i].Hits > hitsResult[j].Hits
-	})
-	if len(hitsResult) > 10 {
-		hitsResult = hitsResult[:10]
-	}
-}
-
-// RemoveHistory removes the word from cache and firestore
-func RemoveHistory(word string, passwd string) string {
-	if passwd != "vudghk" && passwd != "평화" {
-		return "wrong password"
-	}
-	if _, exists := hitsMap[word]; !exists {
-		return "word not exists"
-	}
-
-	for i := range hitsResult {
-		if hitsResult[i].Query == word {
-			hitsResult = append(hitsResult[:i], hitsResult[i+1:]...)
-		}
-	}
-	delete(hitsMap, word)
-
-	ctx := context.Background()
-	if _, err := collection.Doc(word).Delete(ctx); err != nil {
-		return "firestore error"
-	}
-
-	return "success"
-}
-
 // SaveNewArrivals saves json string data to firestore
 func SaveNewArrivals(data string) {
 	ctx := context.Background()
@@ -231,4 +106,61 @@ func LoadNewArrivals() string {
 		}
 	}
 	return ""
+}
+
+// AddQuery adds query and timestamp to today's document
+func AddQuery(query string, now time.Time) {
+	ctx := context.Background()
+	if _, err := collection.Doc(now.Format("2006-01")).Collection("queries").NewDoc().Set(ctx, map[string]interface{}{
+		"query":     query,
+		"timestamp": now,
+	}); err != nil {
+		log.Printf("AddQuery: Failed to add query. query=%s", query)
+	}
+}
+
+// GetQueryRange returns queries entered from 'from' to 'to'
+func GetQueryRange(from time.Time, to time.Time) []string {
+	ctx := context.Background()
+
+	queryFrom := collection.Doc(from.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
+	iterFrom := queryFrom.Documents(ctx)
+
+	var results []string
+	for {
+		doc, err := iterFrom.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("GetQueryRange: Failed. e=%s, from=%s, to=%s", err, from, to)
+			break
+		}
+		if doc.Data()["query"] != nil {
+			results = append(results, doc.Data()["query"].(string))
+		}
+	}
+
+	if from.Month() == to.Month() {
+		return results
+	}
+
+	queryTo := collection.Doc(from.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
+	iterTo := queryTo.Documents(ctx)
+
+	for {
+		doc, err := iterTo.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("GetQueryRange: Failed. e=%s, from=%s, to=%s", err, from, to)
+			break
+		}
+		if doc.Data()["query"] != nil {
+			results = append(results, doc.Data()["query"].(string))
+		}
+	}
+
+	return results
 }

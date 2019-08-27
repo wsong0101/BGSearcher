@@ -8,6 +8,7 @@ import (
 
 	"bgsearcher.com/cloud"
 	"bgsearcher.com/crawl"
+	"bgsearcher.com/ranking"
 )
 
 // Crawlers is the arry for shops' information
@@ -174,7 +175,7 @@ func Search(query string) []crawl.SearchResult {
 		if result, success := <-ch; success {
 			results = append(results, result...)
 		} else {
-			cloud.IncreaseHitsCount(query)
+			ranking.AddQuery(query)
 			return results
 		}
 	}

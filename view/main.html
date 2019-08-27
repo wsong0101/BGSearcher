@@ -1,19 +1,38 @@
 {{define "main"}}
 
+<div class="row">
+  <div class="col-md-6">
+    <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-primary">주간 인기 검색어</a>
+      {{range .Weekly}}
+        <a href="/search?query={{.Name}}" class="list-group-item list-group-item-action">{{.Name}}</a>
+      {{end}}
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="list-group">
+      <a href="#" class="list-group-item list-group-item-primary">월간 인기 검색어</a>
+      {{range .Monthly}}
+        <a href="/search?query={{.Name}}" class="list-group-item list-group-item-action">{{.Name}}</a>
+      {{end}}
+    </div>
+  </div>
+</div>
+
 <ul class="list-group my-2">
-    <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
-    {{range .ShopInfos}}
-        <li class="list-group-item list-group-item-action"><a href="{{.URL}}" target="blank">{{.Name}}</a></li>
-    {{end}}
+  <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
+  {{range .ShopInfos}}
+      <li class="list-group-item list-group-item-action"><a href="{{.URL}}" target="blank">{{.Name}}</a></li>
+  {{end}}
 </ul>
 
 <ul class="list-group my-2">
-    <li class="list-group-item list-group-item-primary">신규 입고 지원 사이트</li>
-    {{range .ShopInfos}}
-        {{if ne .NewArrivalURL ""}}
-        <li class="list-group-item list-group-item-action"><a href="{{.NewArrivalURL}}" target="blank">{{.Name}}</a></li>
-        {{end}}
-    {{end}}
+  <li class="list-group-item list-group-item-primary">신규 입고 지원 사이트</li>
+  {{range .ShopInfos}}
+      {{if ne .NewArrivalURL ""}}
+      <li class="list-group-item list-group-item-action"><a href="{{.NewArrivalURL}}" target="blank">{{.Name}}</a></li>
+      {{end}}
+  {{end}}
 </ul>
 
 <div class="accordion my-3" id="accordionExample">

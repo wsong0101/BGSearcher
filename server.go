@@ -12,6 +12,7 @@ import (
 	"bgsearcher.com/api"
 	"bgsearcher.com/cloud"
 	"bgsearcher.com/crawl"
+	"bgsearcher.com/ranking"
 )
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
@@ -28,10 +29,11 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-//PageData is a struct for rendering info
-type PageData struct {
+type pageData struct {
 	Content   string
 	ShopInfos []crawl.ShopInfo
+	Weekly    []ranking.QueryCount
+	Monthly   []ranking.QueryCount
 }
 
 func main() {
@@ -39,6 +41,7 @@ func main() {
 
 	cloud.InitializeCloud()
 	api.LoadNewArrivalsFromCloud()
+	ranking.InitRanking()
 
 	var refreshDuration = 30 * time.Minute
 	go api.UpdateNewArrivals(refreshDuration) // every 30 min
@@ -52,26 +55,28 @@ func main() {
 	e.Renderer = renderer
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", &PageData{
+		return c.Render(http.StatusOK, "base.html", &pageData{
 			Content:   "main",
 			ShopInfos: shopInfos,
+			Monthly:   ranking.GetMonthlyRank(),
+			Weekly:    ranking.GetWeeklyRank(),
 		})
 	})
 
 	e.GET("/search", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", &PageData{
+		return c.Render(http.StatusOK, "base.html", &pageData{
 			Content:   "search",
 			ShopInfos: shopInfos,
 		})
 	})
 
 	e.GET("/new-arrivals", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", PageData{"new-arrivals", nil})
+		return c.Render(http.StatusOK, "base.html", pageData{"new-arrivals", nil, nil, nil})
 	})
 
 	// admin
 	e.GET("/admin", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "base.html", PageData{"admin", nil})
+		return c.Render(http.StatusOK, "base.html", pageData{"admin", nil, nil, nil})
 	})
 
 	e.POST("/search", func(c echo.Context) error {
@@ -80,8 +85,14 @@ func main() {
 		return c.JSON(http.StatusOK, result)
 	})
 
-	e.POST("/hits", func(c echo.Context) error {
-		result := cloud.GetHits()
+	e.POST("/ranks", func(c echo.Context) error {
+		result := ranking.GetMonthlyRank()
+		result = append(result, ranking.GetWeeklyRank()...)
+		return c.JSON(http.StatusOK, result)
+	})
+
+	e.POST("/hourly", func(c echo.Context) error {
+		result := ranking.GetHourlyRank()
 		return c.JSON(http.StatusOK, result)
 	})
 
@@ -94,10 +105,10 @@ func main() {
 	e.File("/ror.xml", "ror.xml")
 
 	e.POST("/remove", func(c echo.Context) error {
-		passwd := c.QueryParam("passwd")
-		word := c.QueryParam("word")
-		result := cloud.RemoveHistory(word, passwd)
-		return c.JSON(http.StatusOK, result)
+		// passwd := c.QueryParam("passwd")
+		// word := c.QueryParam("word")
+		// result := cloud.RemoveHistory(word, passwd)
+		return c.JSON(http.StatusOK, "result")
 	})
 
 	e.Logger.Fatal(e.Start(":8080"))
