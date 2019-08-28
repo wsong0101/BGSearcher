@@ -105,10 +105,13 @@ func main() {
 	e.File("/ror.xml", "ror.xml")
 
 	e.POST("/remove", func(c echo.Context) error {
-		// passwd := c.QueryParam("passwd")
-		// word := c.QueryParam("word")
-		// result := cloud.RemoveHistory(word, passwd)
-		return c.JSON(http.StatusOK, "result")
+		passwd := c.QueryParam("passwd")
+		if passwd != "vudghk" && passwd != "평화" {
+			return c.JSON(http.StatusOK, "wrong password")
+		}
+		word := c.QueryParam("word")
+		ranking.RemoveQuery(word)
+		return c.JSON(http.StatusOK, "ok")
 	})
 
 	e.Logger.Fatal(e.Start(":8080"))

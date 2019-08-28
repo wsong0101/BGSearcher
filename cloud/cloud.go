@@ -164,3 +164,49 @@ func GetQueryRange(from time.Time, to time.Time) []string {
 
 	return results
 }
+
+// RemoveQueryRange removes given query from firestore in given ranges
+func RemoveQueryRange(from time.Time, to time.Time, query string) {
+	ctx := context.Background()
+	queryFrom := collection.Doc(from.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
+	iterFrom := queryFrom.Documents(ctx)
+
+	for {
+		doc, err := iterFrom.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("RemoveQueryRange: Failed. e=%s, from=%s, to=%s", err, from, to)
+			break
+		}
+		if doc.Data()["query"] != nil {
+			if doc.Data()["query"].(string) == query {
+				if _, err := doc.Ref.Delete(ctx); err != nil {
+					log.Printf("RemoveQueryRange: Remove failed. e=%s, from=%s, to=%s", err, from, to)
+				}
+			}
+		}
+	}
+
+	queryTo := collection.Doc(to.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
+	iterTo := queryTo.Documents(ctx)
+
+	for {
+		doc, err := iterTo.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("RemoveQueryRange: Failed. e=%s, from=%s, to=%s", err, from, to)
+			break
+		}
+		if doc.Data()["query"] != nil {
+			if doc.Data()["query"].(string) == query {
+				if _, err := doc.Ref.Delete(ctx); err != nil {
+					log.Printf("RemoveQueryRange: Remove failed. e=%s, from=%s, to=%s", err, from, to)
+				}
+			}
+		}
+	}
+}

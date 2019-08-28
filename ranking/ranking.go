@@ -127,6 +127,17 @@ func minus(u *rankUpdator, query string) {
 	}
 }
 
+func remove(u *rankUpdator, query string) {
+	delete(u.countMap, query)
+	for i := 0; i < len(u.topRanks); i++ {
+		q := &u.topRanks[i]
+		if q.Name == query {
+			u.topRanks = append(u.topRanks[:i], u.topRanks[i+1:]...)
+			return
+		}
+	}
+}
+
 var monthly rankUpdator
 var weekly rankUpdator
 var hourly rankUpdator
@@ -145,8 +156,8 @@ func InitRanking() {
 	weekly.countMap = make(map[string]int64)
 	initUpdator(&weekly, now)
 
-	hourly.updateDuration = time.Duration(30 * time.Second)
-	hourly.rankPeriod = time.Duration(1 * time.Minute)
+	hourly.updateDuration = time.Duration(30 * time.Minute)
+	hourly.rankPeriod = time.Duration(1 * time.Hour)
 	hourly.countMap = make(map[string]int64)
 	initUpdator(&hourly, now)
 }
@@ -166,6 +177,16 @@ func AddQuery(query string) {
 
 	add(&hourly, query)
 	update(&hourly, now)
+}
+
+// RemoveQuery removes cached rank and query from cloud
+func RemoveQuery(query string) {
+	remove(&monthly, query)
+	remove(&weekly, query)
+	remove(&hourly, query)
+
+	from := monthly.updateTime.Add(-monthly.rankPeriod).Add(-monthly.updateDuration)
+	cloud.RemoveQueryRange(from, time.Now(), query)
 }
 
 // GetMonthlyRank returns monthly rank

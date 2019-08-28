@@ -88,7 +88,7 @@
             <form class="form-inline my-2 my-lg-0 d-none d-lg-block" action="/search">
                 <div class="input-group">
                     <div class="input-group-prepend">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">실시간검색어</button>
                         <div class="dropdown-menu">
                             <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Name)">${hit.Name}</a>
                         </div>

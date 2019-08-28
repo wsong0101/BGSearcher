@@ -25,7 +25,7 @@
                     <a :href="data.Link" target="blank"><img :src="data.Img" :alt="data.Name"></a>
                 </div>
                 <div class="card-body">
-                    <a :href="data.Link" target="blank"><h5 class="card-title">${data.Name}</h5></a>
+                    <a :href="data.Link" target="blank"><h6 class="card-title">${data.Name}</h6></a>
                     <p class="card-text" v-if="data.Name2 != ''">${data.Name2}</p>
                 </div>
                 <div class="card-footer" :class="data.SoldOut ? 'bg-danger' : ''">
