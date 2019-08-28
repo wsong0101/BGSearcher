@@ -69,7 +69,8 @@ func add(u *rankUpdator, query string) {
 			target := &u.topRanks[updated]
 			if q.Count < target.Count {
 				// rank up!
-				q, target = target, q
+				*q, *target = *target, *q
+				updated = i
 				continue
 			}
 			break
@@ -96,7 +97,7 @@ func add(u *rankUpdator, query string) {
 
 	q := &u.topRanks[len(u.topRanks)-1]
 	if q.Count < count {
-		q = &QueryCount{
+		*q = QueryCount{
 			Name:  query,
 			Count: count,
 		}
@@ -117,7 +118,7 @@ func minus(u *rankUpdator, query string) {
 		return
 	}
 
-	for i := len(u.topRanks) - 1; i >= 0; i-- {
+	for i := 0; i < len(u.topRanks); i++ {
 		q := &u.topRanks[i]
 		if q.Name == query {
 			q.Count = count
@@ -144,8 +145,8 @@ func InitRanking() {
 	weekly.countMap = make(map[string]int64)
 	initUpdator(&weekly, now)
 
-	hourly.updateDuration = time.Duration(1 * time.Hour)
-	hourly.rankPeriod = time.Duration(30 * time.Second)
+	hourly.updateDuration = time.Duration(30 * time.Second)
+	hourly.rankPeriod = time.Duration(1 * time.Minute)
 	hourly.countMap = make(map[string]int64)
 	initUpdator(&hourly, now)
 }
@@ -162,6 +163,9 @@ func AddQuery(query string) {
 
 	add(&weekly, query)
 	update(&weekly, now)
+
+	add(&hourly, query)
+	update(&hourly, now)
 }
 
 // GetMonthlyRank returns monthly rank

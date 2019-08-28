@@ -59,9 +59,9 @@
             <form class="form-inline my-2 my-lg-0 d-lg-none" id="mobile-search" action="/search">
                 <div class="input-group">
                     <div class="input-group-prepend">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">실시간검색어</button>
                         <div class="dropdown-menu">
-                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Name)">${hit.Name}</a>
                         </div>
                     </div>
                     <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
@@ -79,9 +79,9 @@
                     <li class="nav-item" :class="current=='/new-arrivals' ? 'active' : ''">
                         <a class="nav-link" href="/new-arrivals">신규 입고</a>
                     </li>
-                    <li class="nav-item" :class="current=='/search' ? 'active' : ''">
+                    <!-- <li class="nav-item" :class="current=='/search' ? 'active' : ''">
                         <a class="nav-link" href="/search">검색</a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
 
@@ -90,7 +90,7 @@
                     <div class="input-group-prepend">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">인기검색어</button>
                         <div class="dropdown-menu">
-                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Query)">${hit.Query}</a>
+                            <a v-for="hit in hits" class="dropdown-item" :href="GetSearchLink(hit.Name)">${hit.Name}</a>
                         </div>
                     </div>
                     <input type="search" name="query" :value="query" class="form-control" placeholder="검색어 입력" aria-label="입력" aria-describedby="button-addon2">
@@ -136,7 +136,7 @@
             methods: {
                 GetHits: function() {
                     var self = this
-                    axios.post("/hits", null, {})
+                    axios.post("/hourly", null, {})
                     .then(function (resp) {
                         self.hits = resp.data
                     })

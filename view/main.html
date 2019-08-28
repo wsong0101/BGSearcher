@@ -1,17 +1,17 @@
 {{define "main"}}
 
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-6 my-2">
     <div class="list-group">
-      <a href="#" class="list-group-item list-group-item-primary">주간 인기 검색어</a>
+      <a class="list-group-item list-group-item-warning">주간 인기 검색어</a>
       {{range .Weekly}}
         <a href="/search?query={{.Name}}" class="list-group-item list-group-item-action">{{.Name}}</a>
       {{end}}
     </div>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-6 my-2">
     <div class="list-group">
-      <a href="#" class="list-group-item list-group-item-primary">월간 인기 검색어</a>
+      <a class="list-group-item list-group-item-warning">월간 인기 검색어</a>
       {{range .Monthly}}
         <a href="/search?query={{.Name}}" class="list-group-item list-group-item-action">{{.Name}}</a>
       {{end}}
@@ -19,38 +19,59 @@
   </div>
 </div>
 
-<ul class="list-group my-2">
-  <li class="list-group-item list-group-item-primary">검색 지원 사이트</li>
-  {{range .ShopInfos}}
-      <li class="list-group-item list-group-item-action"><a href="{{.URL}}" target="blank">{{.Name}}</a></li>
-  {{end}}
-</ul>
-
-<ul class="list-group my-2">
-  <li class="list-group-item list-group-item-primary">신규 입고 지원 사이트</li>
-  {{range .ShopInfos}}
-      {{if ne .NewArrivalURL ""}}
-      <li class="list-group-item list-group-item-action"><a href="{{.NewArrivalURL}}" target="blank">{{.Name}}</a></li>
+<div class="row">
+  <div class="col-md-6 my-2">
+    <div class="list-group">
+      <a class="list-group-item list-group-item-primary">검색 지원 사이트</a>
+      {{range .ShopInfos}}
+        <a href="{{.URL}}" class="list-group-item list-group-item-action" target="blank">{{.Name}}</a>
       {{end}}
-  {{end}}
-</ul>
+    </div>
+  </div>
+  <div class="col-md-6 my-2">
+    <div class="list-group">
+      <a class="list-group-item list-group-item-primary">신규 입고 지원 사이트</a>
+      {{range .ShopInfos}}
+          {{if ne .NewArrivalURL ""}}
+          <a href="{{.NewArrivalURL}}" class="list-group-item list-group-item-action" target="blank">{{.Name}}</a>
+          {{end}}
+      {{end}}
+    </div>
+  </div>
+</div>
 
 <div class="accordion my-3" id="accordionExample">
   <div class="card">
+      <div class="card-header" id="headingOne">
+        <h2 class="mb-0">
+          <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            패치노트 #5 (19.08.28)
+          </button>
+        </h2>
+      </div>
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+        <div class="card-body">
+            기간별 인기 검색어 추가 (실시간, 주간, 월간)
+        </div>
+      </div>
+    </div>
+
+  <div class="card">
     <div class="card-header" id="headingOne">
       <h2 class="mb-0">
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
           패치노트 #4 (19.08.22)
         </button>
       </h2>
     </div>
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
       <div class="card-body">
           모바일 최적화<br>
           사이트 디자인 마이너 개편
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-header" id="headingOne">
       <h2 class="mb-0">
@@ -59,7 +80,6 @@
         </button>
       </h2>
     </div>
-
     <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
       <div class="card-body">
           신규 입고 품목 기능 추가<br>
@@ -67,6 +87,7 @@
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-header" id="headingTwo">
       <h2 class="mb-0">
@@ -82,6 +103,7 @@
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-header" id="headingThree">
       <h2 class="mb-0">

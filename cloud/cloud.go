@@ -145,7 +145,7 @@ func GetQueryRange(from time.Time, to time.Time) []string {
 		return results
 	}
 
-	queryTo := collection.Doc(from.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
+	queryTo := collection.Doc(to.Format("2006-01")).Collection("queries").Where("timestamp", ">=", from).Where("timestamp", "<=", to)
 	iterTo := queryTo.Documents(ctx)
 
 	for {
