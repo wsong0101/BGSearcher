@@ -7,8 +7,6 @@ import (
 	"bgsearcher.com/cloud"
 )
 
-var topRankingCount = 20
-
 // QueryCount is a struct for query to searched count
 type QueryCount struct {
 	Name  string
@@ -20,6 +18,7 @@ type rankUpdator struct {
 	updateDuration time.Duration
 	rankPeriod     time.Duration
 	countMap       map[string]int64
+	topRankCount   int
 	topRanks       []QueryCount
 }
 
@@ -87,7 +86,7 @@ func add(u *rankUpdator, query string) {
 
 	// check if the query is a new topRank
 	topCount := len(u.topRanks)
-	if topCount < topRankingCount {
+	if topCount < u.topRankCount {
 		u.topRanks = append(u.topRanks, QueryCount{
 			Name:  query,
 			Count: count,
@@ -149,16 +148,19 @@ func InitRanking() {
 	monthly.updateDuration = time.Duration(24 * time.Hour)
 	monthly.rankPeriod = time.Duration(30 * 24 * time.Hour)
 	monthly.countMap = make(map[string]int64)
+	monthly.topRankCount = 20
 	initUpdator(&monthly, now)
 
 	weekly.updateDuration = time.Duration(24 * time.Hour)
 	weekly.rankPeriod = time.Duration(7 * 24 * time.Hour)
 	weekly.countMap = make(map[string]int64)
+	weekly.topRankCount = 20
 	initUpdator(&weekly, now)
 
 	hourly.updateDuration = time.Duration(30 * time.Minute)
 	hourly.rankPeriod = time.Duration(1 * time.Hour)
 	hourly.countMap = make(map[string]int64)
+	hourly.topRankCount = 10
 	initUpdator(&hourly, now)
 }
 
