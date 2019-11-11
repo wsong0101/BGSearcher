@@ -110,7 +110,7 @@ var Crawlers = []crawl.Crawler{
 	},
 	crawl.PopconeEdu{
 		Info: crawl.ShopInfo{
-			QueryURL:     "http://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&cate[0]=002&sword=",
+			QueryURL:     "https://www.popcone.co.kr/shop/goods/goods_search.php?disp_type=gallery&searched=Y&skey=all&cate[0]=002&sword=",
 			Name:         "팝콘에듀",
 			URL:          "http://www.popcone.co.kr",
 			LinkPrefix:   "http://www.popcone.co.kr/shop",
