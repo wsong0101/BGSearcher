@@ -114,5 +114,5 @@ func main() {
 		return c.JSON(http.StatusOK, "ok")
 	})
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":3333"))
 }
