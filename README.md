@@ -17,8 +17,8 @@ cd ./BGSearcher
 ```
 # Server Configurations
 server:
-	port: 3333
-	passwd: ""
+  port: 3333
+  passwd: ""
 ```
 
 ```
