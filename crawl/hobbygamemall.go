@@ -74,9 +74,12 @@ func (s HobbyGameMall) GetSearchResults(query string) []SearchResult {
 		if !exists {
 			return
 		}
-		img = strings.Split(img, "..")[1]
-
-		img = cloud.GetURLFromCloud(info.FireStoreDir+img, info.LinkPrefix+img)
+		if strings.Contains(img, "..") {
+			img = strings.Split(img, "..")[1]
+			img = cloud.GetURLFromCloud(info.FireStoreDir+img, info.LinkPrefix+img)
+		} else {
+			img = cloud.GetURLFromCloud(info.FireStoreDir+strings.Split(img, "://")[1], img)
+		}
 
 		var soldOut = false
 		var nameIndex = 1
