@@ -4,16 +4,25 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
 	"github.com/labstack/echo"
+	"gopkg.in/yaml.v2"
 
 	"bgsearcher.com/api"
 	"bgsearcher.com/cloud"
 	"bgsearcher.com/crawl"
 	"bgsearcher.com/ranking"
 )
+
+type Config struct {
+	Server struct {
+		Port   string `yaml:"port"`
+		Passwd string `yaml:"passwd"`
+	} `yaml:"server"`
+}
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
@@ -53,6 +62,19 @@ func main() {
 		templates: template.Must(template.ParseGlob("view/*.html")),
 	}
 	e.Renderer = renderer
+
+	f, err := os.Open("config.yaml")
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	defer f.Close()
+
+	var config Config
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(&config)
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "base.html", &pageData{
@@ -106,7 +128,7 @@ func main() {
 
 	e.POST("/remove", func(c echo.Context) error {
 		passwd := c.QueryParam("passwd")
-		if passwd != "vudghk" && passwd != "평화" {
+		if passwd != config.Server.Passwd {
 			return c.JSON(http.StatusOK, "wrong password")
 		}
 		word := c.QueryParam("word")
@@ -114,5 +136,5 @@ func main() {
 		return c.JSON(http.StatusOK, "ok")
 	})
 
-	e.Logger.Fatal(e.Start(":3333"))
+	e.Logger.Fatal(e.Start(":" + config.Server.Port))
 }

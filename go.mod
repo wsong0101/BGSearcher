@@ -10,4 +10,5 @@ require (
 	github.com/labstack/gommon v0.3.0 // indirect
 	golang.org/x/text v0.3.2
 	google.golang.org/api v0.15.0
+	gopkg.in/yaml.v2 v2.2.2
 )
