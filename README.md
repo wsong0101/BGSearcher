@@ -2,6 +2,7 @@
 # BGSearcher
 ### About
 보드게임 통합 검색 서비스를 제공하는 사이트입니다.
+[https://bgsearcher.com](https://bgsearcher.com)
 
 ### 설치 및 실행
 구동을 위해 Google Cloud Platform의 Storage와 Firestore를 사용합니다.
