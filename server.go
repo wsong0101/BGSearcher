@@ -125,6 +125,7 @@ func main() {
 
 	e.File("/favicon.ico", "favicon.ico")
 	e.File("/ror.xml", "ror.xml")
+	e.File("/ads.txt", "ads.txt")
 
 	e.POST("/remove", func(c echo.Context) error {
 		passwd := c.QueryParam("passwd")
