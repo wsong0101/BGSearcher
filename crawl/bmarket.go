@@ -119,6 +119,8 @@ func (s BMarket) GetNewArrivals() []NewArrival {
 	var info = &(s.Info)
 	var results []NewArrival
 
+	return results
+
 	resp, err := http.Get(info.NewArrivalURL)
 	if err != nil {
 		log.Printf("BMarket: Failed to get new arrival page")

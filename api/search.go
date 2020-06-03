@@ -175,7 +175,9 @@ func Search(query string) []crawl.SearchResult {
 		if result, success := <-ch; success {
 			results = append(results, result...)
 		} else {
-			ranking.AddQuery(query)
+			if len(results) > 0 {
+				ranking.AddQuery(query)
+			}
 			return results
 		}
 	}
