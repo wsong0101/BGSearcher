@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gopkg.in/yaml.v2"
 
 	"bgsearcher.com/api"
@@ -75,6 +76,8 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
+
+	e.Use(middleware.Logger())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "base.html", &pageData{
